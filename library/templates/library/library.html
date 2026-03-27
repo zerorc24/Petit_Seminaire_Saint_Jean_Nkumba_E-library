@@ -1,0 +1,59 @@
+{% extends "library/base.html" %}
+{% load static %}
+
+{% block content %}
+<h1 class="text-3xl font-bold mb-4 text-blue-900">Library</h1>
+
+<!-- Search Form -->
+<form method="get" class="mb-6 flex justify-center items-center gap-2">
+    <input
+        type="text"
+        name="q"
+        placeholder="Search by title, subject, or level..."
+        value="{{ query }}"
+        class="border border-blue-200 rounded-lg px-4 py-2 w-full max-w-md bg-white
+               focus:outline-none focus:ring-2 focus:ring-blue-700"
+    >
+    <button
+        type="submit"
+        class="bg-blue-900 text-white px-4 py-2 rounded-lg hover:bg-blue-800">
+        Search
+    </button>
+</form>
+
+<!-- Books List -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    {% for book in page_obj %}
+        <div class="bg-white rounded-lg shadow p-4">
+            <h3 class="font-bold text-lg mb-2 text-blue-900">{{ book.title }}</h3>
+            <p class="text-sm text-blue-700">{{ book.subject }} - {{ book.level }}</p>
+            {% if book.pdf_url %}
+                <a href="{{ book.pdf_url }}" target="_blank"
+                   class="inline-block mt-4 px-3 py-1 bg-blue-900 text-white rounded hover:bg-blue-800">
+                    Read
+                </a>
+            {% endif %}
+        </div>
+    {% empty %}
+        <div class="col-span-full text-center py-20 text-gray-500">
+            <p class="text-lg font-semibold">No books match your search</p>
+            <p class="text-sm mt-2">Try another keyword or clear the search.</p>
+        </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+<div class="mt-6 flex gap-3 items-center justify-center">
+    {% if page_obj.has_previous %}
+        <a class="px-3 py-1 border rounded hover:bg-gray-50"
+           href="?q={{ query|urlencode }}&page={{ page_obj.previous_page_number }}">Prev</a>
+    {% endif %}
+
+    <span class="text-sm text-gray-700">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+
+    {% if page_obj.has_next %}
+        <a class="px-3 py-1 border rounded hover:bg-gray-50"
+           href="?q={{ query|urlencode }}&page={{ page_obj.next_page_number }}">Next</a>
+    {% endif %}
+</div>
+{% endblock %}

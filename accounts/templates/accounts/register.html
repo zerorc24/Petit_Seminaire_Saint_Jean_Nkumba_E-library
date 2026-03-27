@@ -1,0 +1,34 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Promptlyy | Register</title>
+    <link rel="stylesheet" href="{% static 'css/login-hud.css' %}">
+</head>
+
+<body>
+
+<div class="hud-container">
+    <div class="hud-frame">
+        <div class="avatar"></div>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="password" name="password1" placeholder="Password" required>
+            <input type="password" name="password2" placeholder="Confirm password" required>
+            <input type="checkbox" name="remember_me"> Remember me
+            <button type="submit">CREATE ACCOUNT</button>
+
+            <p style="text-align:center; font-size:0.75rem; margin-top:14px;">
+                Already have an account?
+                <a href="{% url 'login' %}" style="color:#22c55e;">Login</a>
+            </p>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>
