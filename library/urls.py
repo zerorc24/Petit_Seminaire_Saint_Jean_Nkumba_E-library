@@ -10,7 +10,7 @@ urlpatterns = [
 
     path("dashboard/", views.dashboard, name="dashboard"),
 
-    path("library/", views.library_view, name="library"),
+    path("library/", views.library_list, name="library"),
 
     path("read/<int:pk>/", views.read_book, name="read_book"),
 

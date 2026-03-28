@@ -12,9 +12,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # -------------------------------
 SECRET_KEY = os.environ.get('SECRET_KEY', 'unsafe-secret-key')
 
-DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+# Use DEBUG=True locally, False in production
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['*']  # change later to your Render domain
 
 
 # -------------------------------
@@ -38,7 +39,6 @@ INSTALLED_APPS = [
 # -------------------------------
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-
     'whitenoise.middleware.WhiteNoiseMiddleware',
 
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -51,10 +51,9 @@ MIDDLEWARE = [
 
 
 # -------------------------------
-# URLS & WSGI
+# ROOT URL & WSGI
 # -------------------------------
 ROOT_URLCONF = 'core.urls'
-
 WSGI_APPLICATION = 'core.wsgi.application'
 
 
@@ -64,7 +63,7 @@ WSGI_APPLICATION = 'core.wsgi.application'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],  # your templates folder
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -78,11 +77,11 @@ TEMPLATES = [
 
 
 # -------------------------------
-# DATABASE (Heroku + Local)
+# DATABASE
 # -------------------------------
 DATABASES = {
     'default': dj_database_url.config(
-        default='sqlite:///' + str(BASE_DIR / 'db.sqlite3'),
+        default='sqlite:///db.sqlite3',
         conn_max_age=600
     )
 }
@@ -130,7 +129,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 
 # -------------------------------
-# AUTH REDIRECTS
+# LOGIN / AUTH
 # -------------------------------
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'
