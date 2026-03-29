@@ -24,18 +24,22 @@ def admin_required(view_func):
 # HOME
 # -------------------------------
 def home(request):
-    # If logged in → go directly to library
-    if request.user.is_authenticated:
-        return redirect("library")
-
     latest_books = Book.objects.order_by('-id')[:8]
 
     return render(request, "library/home.html", {
         "latest_books": latest_books
     })
 
+
+# -------------------------------
+# LOGIN
+# -------------------------------
 def login_view(request):
-    next_url = request.GET.get("next")  # only from GET
+    # If already logged in → go home
+    if request.user.is_authenticated:
+        return redirect("home")
+
+    next_url = request.GET.get("next")
 
     if request.method == "POST":
         username = request.POST.get("username", "").strip()
@@ -47,11 +51,10 @@ def login_view(request):
         if user:
             login(request, user)
 
-            # PRIORITY: use POST next first
+            # redirect to intended page
             if next_post:
                 return redirect(next_post)
 
-            # fallback to GET next
             if next_url:
                 return redirect(next_url)
 
@@ -62,7 +65,6 @@ def login_view(request):
     return render(request, "library/login.html", {
         "next": next_url
     })
-
 # -------------------------------
 # LOGOUT
 # -------------------------------
