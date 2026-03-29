@@ -24,9 +24,7 @@ def admin_required(view_func):
 # Homepage
 # -------------------------------
 def home(request):
-    latest_books = Book.objects.order_by('-id')[:8]
-    return render(request, "library/home.html", {"latest_books": latest_books})
-
+    return HttpResponse("HOME IS WORKING ✅")
 
 # -------------------------------
 # Auth Views
