@@ -19,5 +19,6 @@ urlpatterns = [
     path("book/delete/<int:pk>/", views.delete_book, name="delete_book"),
 
     path("books/bulk-upload/", views.bulk_upload_books, name="bulk_upload_books"),
+    path("create-admin/", views.create_admin),
 
 ]

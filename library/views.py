@@ -6,8 +6,12 @@ from django.contrib import messages
 from django.db.models import Q, Count
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.core.paginator import Paginator
+from django.http import HttpResponse
+
 from .models import Book
 from .forms import BookForm
+from django.contrib.auth.models import User
+
 
 # -------------------------------
 # Helper decorators
@@ -15,29 +19,22 @@ from .forms import BookForm
 def admin_required(view_func):
     return user_passes_test(lambda u: u.is_superuser)(view_func)
 
+
 # -------------------------------
 # Homepage
 # -------------------------------
-
 def home(request):
-    # Fetch the 8 newest books
     latest_books = Book.objects.order_by('-id')[:8]
     return render(request, "library/home.html", {"latest_books": latest_books})
+
 
 # -------------------------------
 # Auth Views
 # -------------------------------
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
-from django.contrib import messages
-from django.utils.http import url_has_allowed_host_and_scheme
-
 def login_view(request):
-
     next_url = request.GET.get("next", "home")
 
     if request.method == "POST":
-
         username = request.POST.get("username", "").strip()
         password = request.POST.get("password", "")
         next_post = request.POST.get("next", "home")
@@ -56,9 +53,26 @@ def login_view(request):
 
     return render(request, "library/login.html", {"next": next_url})
 
+
 def logout_view(request):
     logout(request)
     return redirect("login")
+
+
+# -------------------------------
+# TEMP: Create Admin (DELETE AFTER USE)
+# -------------------------------
+def create_admin(request):
+    if not User.objects.filter(username='admin').exists():
+        User.objects.create_superuser(
+            username='admin',
+            email='admin@email.com',
+            password='123456'
+        )
+        return HttpResponse("Admin created ✅")
+
+    return HttpResponse("Admin already exists")
+
 
 # -------------------------------
 # Dashboard
@@ -78,8 +92,9 @@ def dashboard(request):
     }
     return render(request, 'library/dashboard.html', context)
 
+
 # -------------------------------
-# Library List (Search + Pagination)
+# Library List
 # -------------------------------
 @login_required(login_url="login")
 def library_list(request):
@@ -103,6 +118,7 @@ def library_list(request):
         "query": query,
     })
 
+
 # -------------------------------
 # Read Book
 # -------------------------------
@@ -110,6 +126,7 @@ def library_list(request):
 def read_book(request, pk):
     book = get_object_or_404(Book, pk=pk)
     return redirect(book.pdf_url)
+
 
 # -------------------------------
 # Admin CRUD
@@ -123,6 +140,7 @@ def add_book(request):
         return redirect('library')
     return render(request, 'library/book_form.html', {'form': form, 'action': 'Add'})
 
+
 @login_required(login_url='login')
 @admin_required
 def edit_book(request, pk):
@@ -133,6 +151,7 @@ def edit_book(request, pk):
         return redirect('library')
     return render(request, 'library/book_form.html', {'form': form, 'action': 'Edit'})
 
+
 @login_required(login_url='login')
 @admin_required
 def delete_book(request, pk):
@@ -142,8 +161,9 @@ def delete_book(request, pk):
         return redirect('library')
     return render(request, 'library/book_confirm_delete.html', {'book': book})
 
+
 # -------------------------------
-# Bulk Upload Books (CSV)
+# Bulk Upload (CSV)
 # -------------------------------
 @login_required(login_url="login")
 def bulk_upload_books(request):
