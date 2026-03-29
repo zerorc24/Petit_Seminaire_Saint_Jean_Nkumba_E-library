@@ -231,8 +231,8 @@ header nav a:hover{
 <img src="{% static 'images/pssj-nkumba-logo.png' %}" alt="Logo">
 
 <nav>
-<a href="{% url 'library' %}">Library</a>
-<a href="{% url 'dashboard' %}">Dashboard</a>
+<a href="{% url 'login' %}?next={% url 'library' %}">Library</a>
+<a href="{% url 'login' %}?next={% url 'dashboard' %}">Dashboard</a>
 </nav>
 </header>
 
@@ -260,7 +260,9 @@ header nav a:hover{
 <!-- Call to Action -->
 <section class="cta">
 <h2>Start Learning Today</h2>
-<button onclick="location.href='{% url 'library' %}'">Open Library</button>
+<button onclick="location.href='{% url 'login' %}?next={% url 'library' %}'">
+    Open Library
+</button>
 </section>
 
 <!-- Footer -->

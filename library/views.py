@@ -14,55 +14,65 @@ from django.contrib.auth.models import User
 
 
 # -------------------------------
-# Helper decorators
+# Helper decorator (admin only)
 # -------------------------------
 def admin_required(view_func):
     return user_passes_test(lambda u: u.is_superuser)(view_func)
 
 
 # -------------------------------
-# Homepage
+# HOME
 # -------------------------------
 def home(request):
+    # If logged in → go directly to library
+    if request.user.is_authenticated:
+        return redirect("library")
+
     latest_books = Book.objects.order_by('-id')[:8]
 
     return render(request, "library/home.html", {
         "latest_books": latest_books
     })
 
-# -------------------------------
-# Auth Views
-# -------------------------------
 def login_view(request):
-    next_url = request.GET.get("next", "home")
+    next_url = request.GET.get("next")  # only from GET
 
     if request.method == "POST":
         username = request.POST.get("username", "").strip()
         password = request.POST.get("password", "")
-        next_post = request.POST.get("next", "home")
+        next_post = request.POST.get("next")
 
         user = authenticate(request, username=username, password=password)
 
         if user:
             login(request, user)
 
-            if url_has_allowed_host_and_scheme(next_post, allowed_hosts={request.get_host()}):
+            # PRIORITY: use POST next first
+            if next_post:
                 return redirect(next_post)
+
+            # fallback to GET next
+            if next_url:
+                return redirect(next_url)
 
             return redirect("home")
 
         messages.error(request, "Invalid username or password")
 
-    return render(request, "library/login.html", {"next": next_url})
+    return render(request, "library/login.html", {
+        "next": next_url
+    })
 
-
+# -------------------------------
+# LOGOUT
+# -------------------------------
 def logout_view(request):
     logout(request)
-    return redirect("login")
+    return redirect("home")
 
 
 # -------------------------------
-# TEMP: Create Admin (DELETE AFTER USE)
+# CREATE ADMIN (TEMP)
 # -------------------------------
 def create_admin(request):
     if not User.objects.filter(username='admin').exists():
@@ -77,7 +87,7 @@ def create_admin(request):
 
 
 # -------------------------------
-# Dashboard
+# DASHBOARD
 # -------------------------------
 @login_required(login_url="login")
 def dashboard(request):
@@ -86,17 +96,16 @@ def dashboard(request):
     subject_counts = books.values('subject').annotate(count=Count('id'))
     level_counts = books.values('level').annotate(count=Count('id'))
 
-    context = {
+    return render(request, 'library/dashboard.html', {
         'books': books,
         'total_books': total_books,
         'subject_counts': subject_counts,
         'level_counts': level_counts,
-    }
-    return render(request, 'library/dashboard.html', context)
+    })
 
 
 # -------------------------------
-# Library List
+# LIBRARY
 # -------------------------------
 @login_required(login_url="login")
 def library_list(request):
@@ -111,6 +120,7 @@ def library_list(request):
         )
 
     books = books.order_by("level", "subject", "title")
+
     paginator = Paginator(books, 12)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
@@ -122,55 +132,74 @@ def library_list(request):
 
 
 # -------------------------------
-# Read Book
+# READ BOOK
 # -------------------------------
-@login_required(login_url='login')
+@login_required(login_url="login")
 def read_book(request, pk):
     book = get_object_or_404(Book, pk=pk)
     return redirect(book.pdf_url)
 
 
 # -------------------------------
-# Admin CRUD
+# ADD BOOK (ADMIN)
 # -------------------------------
-@login_required(login_url='login')
+@login_required(login_url="login")
 @admin_required
 def add_book(request):
     form = BookForm(request.POST or None, request.FILES or None)
+
     if form.is_valid():
         form.save()
         return redirect('library')
-    return render(request, 'library/book_form.html', {'form': form, 'action': 'Add'})
+
+    return render(request, 'library/book_form.html', {
+        'form': form,
+        'action': 'Add'
+    })
 
 
-@login_required(login_url='login')
+# -------------------------------
+# EDIT BOOK (ADMIN)
+# -------------------------------
+@login_required(login_url="login")
 @admin_required
 def edit_book(request, pk):
     book = get_object_or_404(Book, pk=pk)
     form = BookForm(request.POST or None, request.FILES or None, instance=book)
+
     if form.is_valid():
         form.save()
         return redirect('library')
-    return render(request, 'library/book_form.html', {'form': form, 'action': 'Edit'})
+
+    return render(request, 'library/book_form.html', {
+        'form': form,
+        'action': 'Edit'
+    })
 
 
-@login_required(login_url='login')
+# -------------------------------
+# DELETE BOOK (ADMIN)
+# -------------------------------
+@login_required(login_url="login")
 @admin_required
 def delete_book(request, pk):
     book = get_object_or_404(Book, pk=pk)
+
     if request.method == 'POST':
         book.delete()
         return redirect('library')
-    return render(request, 'library/book_confirm_delete.html', {'book': book})
+
+    return render(request, 'library/book_confirm_delete.html', {
+        'book': book
+    })
 
 
 # -------------------------------
-# Bulk Upload (CSV)
+# BULK UPLOAD (ADMIN)
 # -------------------------------
 @login_required(login_url="login")
+@admin_required
 def bulk_upload_books(request):
-    if not request.user.is_superuser:
-        return redirect("library")
 
     if request.method == "POST":
         csv_file = request.FILES.get("csv_file")
