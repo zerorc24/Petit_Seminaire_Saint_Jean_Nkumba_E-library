@@ -3,10 +3,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>PSSJ Nkumba | Digital Library</title>
+<title>Digital Library Login</title>
 
 <style>
-
 body{
 margin:0;
 height:100vh;
@@ -17,28 +16,23 @@ background:#0d47a1;
 font-family:Arial, sans-serif;
 }
 
-/* CARD */
-
-.login-card{
+.card{
 width:380px;
-background:#ffffff;
+background:#fff;
 padding:35px;
 border-radius:12px;
 text-align:center;
 box-shadow:0 10px 25px rgba(0,0,0,0.15);
 }
 
-.login-card img{
+img{
 width:90px;
 margin-bottom:10px;
 }
 
-/* TEXT */
-
 h2{
 margin:5px 0;
 font-size:18px;
-letter-spacing:1px;
 }
 
 .subtitle{
@@ -47,8 +41,6 @@ font-size:14px;
 margin-bottom:20px;
 }
 
-/* INPUTS */
-
 input{
 width:100%;
 padding:12px;
@@ -56,29 +48,23 @@ margin:10px 0;
 border-radius:6px;
 border:1px solid #ddd;
 background:#fffde7;
-font-size:14px;
 }
-
-/* BUTTON */
 
 button{
 width:100%;
 padding:12px;
 margin-top:10px;
 background:#0d47a1;
-color:white;
+color:#fff;
 border:none;
 border-radius:6px;
-font-size:15px;
 cursor:pointer;
-transition:0.3s;
+font-size:14px;
 }
 
 button:hover{
 background:#1565c0;
 }
-
-/* ERROR */
 
 .error{
 color:red;
@@ -86,27 +72,39 @@ font-size:13px;
 margin-bottom:10px;
 }
 
-/* FOOTER */
+.success{
+color:green;
+font-size:13px;
+margin-bottom:10px;
+}
+
+a{
+color:#0d47a1;
+text-decoration:none;
+font-size:13px;
+}
 
 .footer{
 margin-top:15px;
 font-size:12px;
 color:#777;
 }
-
 </style>
 </head>
 
 <body>
 
-<div class="login-card">
+<div class="card">
 
 <img src="{% static 'images/pssj-nkumba-logo.png' %}" alt="Logo">
 
-<h2>PETIT SÉMINAIRE SAINT JEAN</h2>
-<h2>NKUMBA</h2>
-
+<h2>PSSJ NKUMBA</h2>
 <div class="subtitle">Digital Library System</div>
+
+<!-- ================= ERROR / MESSAGES ================= -->
+{% if error %}
+<div class="error">{{ error }}</div>
+{% endif %}
 
 {% if messages %}
     {% for message in messages %}
@@ -114,16 +112,47 @@ color:#777;
     {% endfor %}
 {% endif %}
 
+<!-- ================= LOGIN FORM ================= -->
+{% if not show_verification %}
+
 <form method="POST">
-{% csrf_token %}
+    {% csrf_token %}
 
-<input type="text" name="username" placeholder="Username" required>
+    <input type="hidden" name="next" value="{{ request.GET.next|default:'' }}">
 
-<input type="password" name="password" placeholder="Password" required>
+    <input type="text" name="username" placeholder="Username" required>
+    <input type="password" name="password" placeholder="Password" required>
 
-<button type="submit">Login</button>
-
+    <button type="submit">Login</button>
 </form>
+
+<!-- REGISTER LINK -->
+<p style="margin-top:12px;">
+    Don't have an account?
+    <a href="{% url 'register' %}">Create account</a>
+</p>
+
+{% endif %}
+
+<!-- ================= EMAIL VERIFICATION STEP ================= -->
+{% if show_verification %}
+
+<div class="success">
+Login successful.<br>
+Send verification code to:<br>
+<b>{{ email }}</b>
+</div>
+
+<form method="GET" action="{% url 'send_verification_code' %}">
+    <button type="submit">Send Verification Code</button>
+</form>
+
+<p style="margin-top:10px;">
+    Already received code?
+    <a href="{% url 'verify_code' %}">Enter code</a>
+</p>
+
+{% endif %}
 
 <div class="footer">
 Authorized users only · PSSJ Nkumba

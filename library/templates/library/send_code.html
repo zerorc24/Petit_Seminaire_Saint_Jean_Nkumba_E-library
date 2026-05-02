@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Send Verification Code</title>
+
+    <style>
+        body{
+            margin:0;
+            height:100vh;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            font-family:Arial;
+            background:#0d47a1;
+        }
+
+        .box{
+            width:350px;
+            background:#fff;
+            padding:30px;
+            border-radius:12px;
+            text-align:center;
+        }
+
+        h2{
+            color:#0d47a1;
+        }
+
+        p{
+            font-size:14px;
+            color:#555;
+        }
+
+        button{
+            width:100%;
+            padding:12px;
+            margin-top:15px;
+            background:#0d47a1;
+            color:white;
+            border:none;
+            border-radius:6px;
+            cursor:pointer;
+        }
+
+        button:hover{
+            background:#1565c0;
+        }
+
+        a{
+            display:block;
+            margin-top:10px;
+            font-size:13px;
+            color:#0d47a1;
+            text-decoration:none;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="box">
+
+    <h2>Email Verification</h2>
+
+    <p>We will send a verification code to:</p>
+
+    <p><b>{{ email }}</b></p>
+
+    <form method="GET" action="{% url 'send_verification_code' %}">
+        <button type="submit">Send Code</button>
+    </form>
+
+    <a href="{% url 'login' %}">Back to login</a>
+
+</div>
+
+</body>
+</html>

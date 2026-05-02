@@ -7,19 +7,19 @@ import dj_database_url
 # -------------------------------
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+
 # -------------------------------
 # SECURITY
 # -------------------------------
 SECRET_KEY = os.environ.get('SECRET_KEY', 'unsafe-secret-key')
 
-# Use DEBUG=True locally, False in production
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+DEBUG = True
 
-ALLOWED_HOSTS = ['*']  # change later to your Render domain
+ALLOWED_HOSTS = []
 
 
 # -------------------------------
-# INSTALLED APPS
+# APPLICATIONS
 # -------------------------------
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -30,7 +30,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'library',
-    'accounts',
 ]
 
 
@@ -51,7 +50,21 @@ MIDDLEWARE = [
 
 
 # -------------------------------
-# ROOT URL & WSGI
+# AUTH SYSTEM (IMPORTANT)
+# -------------------------------
+AUTH_USER_MODEL = 'library.CustomUser'
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+LOGIN_URL = "login"
+LOGIN_REDIRECT_URL = "dashboard"
+LOGOUT_REDIRECT_URL = "home"
+
+
+# -------------------------------
+# URL CONFIG
 # -------------------------------
 ROOT_URLCONF = 'core.urls'
 WSGI_APPLICATION = 'core.wsgi.application'
@@ -111,11 +124,7 @@ USE_TZ = True
 # STATIC FILES
 # -------------------------------
 STATIC_URL = '/static/'
-
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]
-
+STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
@@ -129,14 +138,35 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 
 # -------------------------------
-# LOGIN / AUTH
+# EMAIL (DEV MODE)
 # -------------------------------
-LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'home'
-LOGOUT_REDIRECT_URL = 'login'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = 'pssjnteam@gmail.com'
+EMAIL_HOST_PASSWORD = 'hnhb adoe kcqk ypmz'
 
 
 # -------------------------------
-# DEFAULT PRIMARY KEY
+# SECURITY (DEV SAFE)
+# -------------------------------
+CSRF_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = False
+
+
+# -------------------------------
+# DEFAULT AUTO FIELD
 # -------------------------------
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# -------------------------------
+# CSRF TRUST
+# -------------------------------
+CSRF_TRUSTED_ORIGINS = [
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
+]

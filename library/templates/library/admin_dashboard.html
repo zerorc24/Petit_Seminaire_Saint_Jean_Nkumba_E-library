@@ -1,0 +1,247 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Control Panel</title>
+
+<style>
+body{
+    font-family: system-ui, sans-serif;
+    background: #eef2ff;
+    margin:0;
+}
+
+.container{
+    max-width:1200px;
+    margin:auto;
+    padding:20px;
+}
+
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-bottom:25px;
+}
+
+h1{
+    color:#1e3a8a;
+    margin:0;
+}
+
+.actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+}
+
+.action-btn{
+    background:#1e3a8a;
+    color:white;
+    padding:8px 14px;
+    border-radius:8px;
+    text-decoration:none;
+    font-size:13px;
+    font-weight:bold;
+}
+
+.action-btn:hover{
+    background:#3749c7;
+}
+
+.stats{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+    gap:15px;
+    margin-bottom:30px;
+}
+
+.stat-card{
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.08);
+    text-align:center;
+}
+
+.stat-card h2{
+    margin:0;
+    font-size:28px;
+}
+
+.pending{ color:#f59e0b; }
+.approved{ color:#22c55e; }
+.rejected{ color:#ef4444; }
+
+.section{
+    margin-top:30px;
+}
+
+.section-title{
+    font-size:18px;
+    margin-bottom:10px;
+    color:#1e3a8a;
+    font-weight:bold;
+}
+
+.card{
+    background:white;
+    padding:15px;
+    margin-bottom:10px;
+    border-radius:10px;
+    box-shadow:0 3px 10px rgba(0,0,0,0.08);
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:10px;
+}
+
+.info{
+    line-height:1.4;
+}
+
+.email{
+    font-size:13px;
+    color:gray;
+}
+
+.btn{
+    padding:6px 12px;
+    border-radius:6px;
+    text-decoration:none;
+    font-size:12px;
+    font-weight:bold;
+    margin-left:5px;
+}
+
+.approve{ background:#22c55e; color:white; }
+.reject{ background:#ef4444; color:white; }
+
+.badge{
+    padding:4px 10px;
+    border-radius:20px;
+    font-size:11px;
+    font-weight:bold;
+}
+
+.b-approved{ background:#dcfce7; color:#166534; }
+.b-rejected{ background:#fee2e2; color:#991b1b; }
+
+@media(max-width:600px){
+    .card{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- HEADER -->
+    <div class="header">
+        <h1>⚙ Admin Control Panel</h1>
+
+        <div class="actions">
+
+            <!-- SAFE: only real Django admin entry -->
+            <a class="action-btn" href="/admin/">⚙ Django Admin</a>
+
+            <a class="action-btn" href="{% url 'reset_users' %}"
+               onclick="return confirm('This will reset user statuses. Continue?')">
+               🔄 Reset Users
+            </a>
+
+        </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats">
+        <div class="stat-card">
+            <h2 class="pending">{{ pending_users|length }}</h2>
+            <p>Pending</p>
+        </div>
+
+        <div class="stat-card">
+            <h2 class="approved">{{ approved_users|length }}</h2>
+            <p>Approved</p>
+        </div>
+
+        <div class="stat-card">
+            <h2 class="rejected">{{ rejected_users|length }}</h2>
+            <p>Rejected</p>
+        </div>
+    </div>
+
+    <!-- PENDING -->
+    <div class="section">
+        <div class="section-title">Pending Users</div>
+
+        {% for user in pending_users %}
+        <div class="card">
+            <div class="info">
+                <strong>{{ user.username }}</strong>
+                <div class="email">{{ user.email }}</div>
+            </div>
+
+            <div>
+                <a class="btn approve" href="{% url 'approve_user' user.id %}">Approve</a>
+                <a class="btn reject" href="{% url 'reject_user' user.id %}">Reject</a>
+            </div>
+        </div>
+        {% empty %}
+            <p>No pending users</p>
+        {% endfor %}
+    </div>
+
+    <!-- APPROVED -->
+    <div class="section">
+        <div class="section-title">Approved Users</div>
+
+        {% for user in approved_users %}
+        <div class="card">
+            <div class="info">
+                <strong>{{ user.username }}</strong>
+                <div class="email">{{ user.email }}</div>
+            </div>
+
+            <div>
+                <span class="badge b-approved">Approved</span>
+            </div>
+        </div>
+        {% empty %}
+            <p>No approved users</p>
+        {% endfor %}
+    </div>
+
+    <!-- REJECTED -->
+    <div class="section">
+        <div class="section-title">Rejected Users</div>
+
+        {% for user in rejected_users %}
+        <div class="card">
+            <div class="info">
+                <strong>{{ user.username }}</strong>
+                <div class="email">{{ user.email }}</div>
+            </div>
+
+            <div>
+                <span class="badge b-rejected">Rejected</span>
+            </div>
+        </div>
+        {% empty %}
+            <p>No rejected users</p>
+        {% endfor %}
+    </div>
+
+</div>
+
+</body>
+</html>

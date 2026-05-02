@@ -1,68 +1,141 @@
 {% extends "library/base.html" %}
 
 {% block content %}
-<div class="min-h-screen px-6 py-10
-            bg-gradient-to-br from-white via-blue-50 to-blue-200">
+<div class="min-h-screen px-4 sm:px-6 py-10
+            bg-gradient-to-br from-slate-50 via-blue-50 to-blue-200">
 
-    <!-- PAGE TITLE -->
-    <h1 class="text-4xl font-extrabold text-center text-blue-900 mb-12 tracking-wide drop-shadow-md">
-        Digital Library Dashboard
-    </h1>
+    <!-- HEADER -->
+    <div class="max-w-7xl mx-auto mb-12 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 
-    <!-- TOP CARDS -->
-    <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 mb-14">
-
-        <!-- TOTAL BOOKS -->
-        <div class="relative rounded-3xl p-10 text-center
-                    bg-gradient-to-b from-white via-blue-50 to-blue-100 border border-blue-200
-                    backdrop-blur-lg shadow-xl hover:scale-105 transition-transform duration-300">
-
-            <p class="uppercase tracking-widest text-blue-700 text-sm mb-2">Total Books</p>
-            <h2 class="text-7xl font-extrabold text-blue-900">{{ total_books }}</h2>
+        <div>
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-blue-900 tracking-tight">
+                📊 Dashboard
+            </h1>
+            <p class="text-gray-500 text-sm mt-1">
+                Monitor your digital library performance
+            </p>
         </div>
 
-        <!-- BOOKS BY SUBJECT -->
-        <div class="rounded-3xl p-8 bg-gradient-to-b from-white via-blue-50 to-blue-100 border border-blue-200
-                    shadow-xl backdrop-blur-lg">
+        <div class="text-xs text-gray-400">
+            Last updated: <span class="font-medium text-gray-600">now</span>
+        </div>
 
-            <h3 class="text-xl font-bold text-blue-900 mb-6 text-center">Books by Subject</h3>
+    </div>
 
-            <div class="space-y-3">
-                {% for item in subject_counts %}
-                <div class="flex justify-between items-center
-                            bg-white/70 px-4 py-2 rounded-xl shadow-sm">
-                    <span class="text-blue-900 font-medium">{{ item.subject }}</span>
-                    <span class="text-blue-700 font-bold">{{ item.count }}</span>
-                </div>
-                {% endfor %}
+    <!-- MAIN GRID -->
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- LEFT: BIG STAT -->
+        <div class="lg:col-span-1">
+            <div class="relative rounded-3xl p-8 sm:p-10
+                        bg-gradient-to-br from-blue-900 to-blue-700
+                        text-white shadow-2xl overflow-hidden">
+
+                <!-- Glow Effect -->
+                <div class="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+
+                <p class="uppercase tracking-widest text-xs opacity-80 mb-3">
+                    Total Books
+                </p>
+
+                <h2 class="text-6xl sm:text-7xl font-extrabold leading-none">
+                    {{ total_books }}
+                </h2>
+
+                <p class="mt-4 text-sm opacity-80">
+                    All books currently in your system
+                </p>
+
             </div>
         </div>
 
-        <!-- BOOKS BY LEVEL -->
-        <div class="rounded-3xl p-8 bg-gradient-to-b from-white via-blue-50 to-blue-100 border border-blue-200
-                    shadow-xl backdrop-blur-lg">
+        <!-- RIGHT SIDE -->
+        <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
 
-            <h3 class="text-xl font-bold text-blue-900 mb-6 text-center">Books by Level</h3>
+            <!-- SUBJECTS -->
+            <div class="rounded-3xl p-6 sm:p-7
+                        bg-white border border-gray-100
+                        shadow-lg hover:shadow-xl transition duration-300">
 
-            <div class="space-y-3">
-                {% for item in level_counts %}
-                <div class="flex justify-between items-center
-                            bg-white/70 px-4 py-2 rounded-xl shadow-sm">
-                    <span class="text-blue-900 font-medium">{{ item.level }}</span>
-                    <span class="text-blue-700 font-bold">{{ item.count }}</span>
+                <div class="flex justify-between items-center mb-5">
+                    <h3 class="text-lg font-bold text-blue-900">
+                        📚 Subjects
+                    </h3>
+                    <span class="text-xs text-gray-400">Distribution</span>
                 </div>
-                {% endfor %}
+
+                <div class="space-y-3 max-h-64 overflow-y-auto pr-1">
+
+                    {% for item in subject_counts %}
+                    <div class="flex flex-col gap-1">
+
+                        <div class="flex justify-between text-sm">
+                            <span class="font-medium text-gray-700">
+                                {{ item.subject }}
+                            </span>
+                            <span class="text-blue-700 font-semibold">
+                                {{ item.count }}
+                            </span>
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <div class="w-full bg-gray-100 rounded-full h-2">
+                            <div class="bg-blue-700 h-2 rounded-full transition-all duration-500"
+                                 style="width: {{ item.count|add:0 }}0%;">
+                            </div>
+                        </div>
+
+                    </div>
+                    {% endfor %}
+
+                </div>
+
             </div>
 
-            {% if request.user.is_superuser %}
-            <div class="mt-6 text-center">
-                <a href="{% url 'bulk_upload_books' %}"
-                   class="inline-block bg-blue-900 text-white px-6 py-3 rounded-xl font-semibold shadow-md
-                          hover:bg-blue-800 transition-colors">
-                   Bulk Upload Books
-                </a>
+            <!-- LEVELS -->
+            <div class="rounded-3xl p-6 sm:p-7
+                        bg-white border border-gray-100
+                        shadow-lg hover:shadow-xl transition duration-300">
+
+                <div class="flex justify-between items-center mb-5">
+                    <h3 class="text-lg font-bold text-blue-900">
+                        🎓 Levels
+                    </h3>
+                    <span class="text-xs text-gray-400">Breakdown</span>
+                </div>
+
+                <div class="space-y-3 max-h-64 overflow-y-auto pr-1">
+
+                    {% for item in level_counts %}
+                    <div class="flex justify-between items-center
+                                bg-gray-50 px-4 py-2 rounded-lg hover:bg-blue-50 transition">
+
+                        <span class="text-gray-700 text-sm font-medium">
+                            {{ item.level }}
+                        </span>
+
+                        <span class="text-blue-900 font-bold text-sm">
+                            {{ item.count }}
+                        </span>
+
+                    </div>
+                    {% endfor %}
+
+                </div>
+
+                {% if request.user.is_superuser %}
+                <div class="mt-6">
+                    <a href="{% url 'bulk_upload_books' %}"
+                       class="w-full inline-flex justify-center items-center
+                              bg-blue-900 text-white py-3 rounded-xl
+                              text-sm font-semibold shadow hover:bg-blue-800
+                              transition">
+                        ⬆ Bulk Upload Books
+                    </a>
+                </div>
+                {% endif %}
+
             </div>
-            {% endif %}
 
         </div>
 
