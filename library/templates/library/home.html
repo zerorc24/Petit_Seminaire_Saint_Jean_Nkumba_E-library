@@ -4,8 +4,8 @@
 {% block title %}Library | Petit Séminaire Saint Jean Nkumba{% endblock %}
 
 {% block content %}
+
 <style>
-/* ---------- THEME COLORS ---------- */
 :root{
   --main-blue:#0d47a1;
   --light-blue:#1565c0;
@@ -13,248 +13,134 @@
   --white:#ffffff;
 }
 
-/* ---------- General ---------- */
+/* ---------- RESET ---------- */
 *{
   margin:0;
   padding:0;
   box-sizing:border-box;
-  font-family:Arial, sans-serif;
 }
 
-body{
+html,body{
+  width:100%;
+  overflow-x:hidden;
+  font-family:Arial,sans-serif;
   background:#f4f6fb;
   color:#333;
   line-height:1.6;
 }
 
-
-
-header img{
-  width:50px;
-}
-
-
-/* ---------- Hero ---------- */
+/* ---------- HERO ---------- */
 .hero{
-  position: relative;
-  width: 100%;
-  height: 100vh;
-
-  background: url("{% static 'images/sky-header.png' %}") no-repeat center center/cover;
-
-  border-radius: 0 0 35px 35px;
-  overflow: hidden;
+  width:100%;
+  height:100vh;
+  overflow:hidden;
+  position:relative;
 }
 
-/* Dark overlay */
-.hero::before{
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.15);
+.hero img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
 }
 
-/* ---------- Tablets ---------- */
-@media screen and (max-width: 992px){
+/* ---------- LARGE TABLETS ---------- */
+@media screen and (max-width:992px){
   .hero{
-    height: 75vh;
-    background-position: center;
+    height:75vh;
   }
 }
 
-/* ---------- Phones ---------- */
-@media screen and (max-width: 768px){
+/* ---------- TABLETS ---------- */
+@media screen and (max-width:768px){
   .hero{
-    height: 60vh;
-
-    /* important */
-    background-size: cover;
-    background-position: center top;
-
-    border-radius: 0 0 25px 25px;
+    height:60vh;
   }
 }
 
-/* ---------- Small Phones ---------- */
-@media screen and (max-width: 480px){
+/* ---------- PHONES ---------- */
+@media screen and (max-width:480px){
   .hero{
-    height: 50vh;
-
-    /* makes image fit better */
-    background-position: top center;
-
-    border-radius: 0 0 20px 20px;
+    height:45vh;
   }
 }
 
-/* ---------- Tiny Phones ---------- */
-@media screen and (max-width: 360px){
+/* ---------- VERY SMALL PHONES ---------- */
+@media screen and (max-width:360px){
   .hero{
-    height: 45vh;
+    height:38vh;
   }
-}
-
-/* ---------- Section Titles ---------- */
-.section-title{
-  text-align:center;
-  margin:40px 20px 20px;
-}
-
-.section-title h2{
-  color:var(--main-blue);
-  font-size:2rem;
-  margin-bottom:12px;
-}
-
-/* ---------- Books ---------- */
-.books{
-  margin:0 20px 40px;
-}
-
-.book-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
-  gap:20px;
-}
-
-.book{
-  background:var(--white);
-  border-radius:16px;
-  padding:12px;
-  text-align:center;
-  box-shadow:0 4px 12px rgba(0,0,0,0.05);
-  transition:0.3s;
-}
-
-.book:hover{
-  transform:translateY(-6px);
-  box-shadow:0 6px 18px rgba(0,0,0,0.1);
-}
-
-.book img{
-  max-width:100px;
-  margin-bottom:10px;
-}
-
-.book h4{
-  font-size:1rem;
-  color:var(--main-blue);
-  margin-bottom:4px;
-}
-
-.book p{
-  font-size:0.9rem;
-  color:var(--text-gray);
 }
 
 /* ---------- CTA ---------- */
 .cta{
-  text-align:center;
-  margin:60px 20px;
+  width:calc(100% - 40px);
+  margin:40px auto;
   padding:40px 20px;
+  text-align:center;
   background:linear-gradient(120deg,var(--main-blue),var(--light-blue));
   border-radius:20px;
   color:#fff;
 }
 
 .cta h2{
-  font-size:1.8rem;
+  font-size:2rem;
   margin-bottom:20px;
 }
 
 .cta button{
-  padding:12px 24px;
+  padding:14px 28px;
+  border:none;
+  border-radius:10px;
   background:#fff;
   color:var(--main-blue);
-  border:none;
-  border-radius:8px;
-  font-weight:600;
+  font-weight:bold;
   cursor:pointer;
-  transition:0.3s;
+  transition:.3s;
 }
 
 .cta button:hover{
-  background:var(--light-blue);
-  color:#fff;
+  background:#e3f2fd;
 }
 
-/* ---------- Footer ---------- */
-.footer{
-  background:var(--main-blue);
-  color:#fff;
-  padding:40px 20px 20px;
-  margin-top:60px;
-}
+/* ---------- MOBILE CTA ---------- */
+@media screen and (max-width:768px){
 
-.footer-container{
-  display:flex;
-  justify-content:space-between;
-  flex-wrap:wrap;
-  gap:40px;
-  max-width:1000px;
-  margin:auto;
-}
-
-.footer h3{
-  margin-bottom:12px;
-  font-size:1.2rem;
-}
-
-.footer p{
-  font-size:0.95rem;
-  color:#d6e4ff;
-  margin-bottom:6px;
-}
-
-.footer-about{
-  max-width:450px;
-}
-
-.footer-bottom{
-  text-align:center;
-  border-top:1px solid rgba(255,255,255,0.2);
-  margin-top:30px;
-  padding-top:15px;
-  font-size:0.85rem;
-  color:#cfd8dc;
-}
-
-/* ---------- Responsive ---------- */
-@media(max-width:768px){
-  header{
-    flex-direction:column;
-    align-items:center;
-    gap:10px;
-  }
-
-  .book-grid{
-    grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+  .cta{
+    width:calc(100% - 24px);
+    padding:30px 15px;
+    border-radius:16px;
   }
 
   .cta h2{
     font-size:1.5rem;
   }
+
+  .cta button{
+    width:100%;
+    max-width:260px;
+  }
 }
 </style>
 
-
-<!-- Hero Image Only -->
-<section class="hero"></section>
-
-
-
-<!-- Call to Action -->
-<section class="cta">
-<h2>Start Learning Today</h2>
-{% if user.is_authenticated %}
-<button onclick="location.href='{% url 'library' %}'">Open Library</button>
-{% else %}
-<button onclick="location.href='{% url 'login' %}?next={% url 'library' %}'">
-    Open Library
-</button>
-{% endif %}
+<!-- Hero -->
+<section class="hero">
+    <img src="{% static 'images/sky-header.png' %}" alt="Hero Image">
 </section>
 
-</body>
-</html>
+<!-- CTA -->
+<section class="cta">
+    <h2>Start Learning Today</h2>
+
+    {% if user.is_authenticated %}
+        <button onclick="location.href='{% url 'library' %}'">
+            Open Library
+        </button>
+    {% else %}
+        <button onclick="location.href='{% url 'login' %}?next={% url 'library' %}'">
+            Open Library
+        </button>
+    {% endif %}
+</section>
+
 {% endblock %}

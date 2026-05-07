@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'library',
+    'pwa',
 ]
 
 
@@ -152,9 +153,8 @@ EMAIL_HOST_PASSWORD = 'hnhb adoe kcqk ypmz'
 # -------------------------------
 # SECURITY (DEV SAFE)
 # -------------------------------
-CSRF_COOKIE_SECURE = False
-SESSION_COOKIE_SECURE = False
-
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
 
 # -------------------------------
 # DEFAULT AUTO FIELD
@@ -166,6 +166,39 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # CSRF TRUST
 # -------------------------------
 CSRF_TRUSTED_ORIGINS = [
+    "https://petit-seminaire-saint-jean-nkumba-e.onrender.com",
     "http://127.0.0.1:8000",
     "http://localhost:8000",
 ]
+PWA_APP_SPLASH_SCREEN = [
+    {
+        'src': '/static/images/icon-512.png',
+        'media': '(device-width: 320px) and (device-height: 568px)'
+    }
+]
+
+PWA_APP_DIR = 'ltr'
+PWA_APP_LANG = 'en-US'
+PWA_APP_NAME = 'Petit Seminaire'
+PWA_APP_DESCRIPTION = "Digital Library System"
+PWA_APP_THEME_COLOR = '#000000'
+PWA_APP_BACKGROUND_COLOR = '#ffffff'
+PWA_APP_DISPLAY = 'standalone'
+PWA_APP_SCOPE = '/'
+PWA_APP_ORIENTATION = 'portrait'
+PWA_APP_START_URL = '/'
+PWA_APP_STATUS_BAR_COLOR = 'default'
+
+PWA_APP_ICONS = [
+    {
+        'src': '/static/images/icon-192.png',
+        'sizes': '192x192'
+    },
+    {
+        'src': '/static/images/icon-512.png',
+        'sizes': '512x512'
+    }
+]
+
+PWA_APP_DIR = 'ltr'
+PWA_APP_LANG = 'en-US'
