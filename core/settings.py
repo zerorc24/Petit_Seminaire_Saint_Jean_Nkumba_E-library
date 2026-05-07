@@ -15,8 +15,11 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'unsafe-secret-key')
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = [
+    "petit-seminaire-saint-jean-nkumba-e.onrender.com",
+    "127.0.0.1",
+    "localhost",
+]
 
 # -------------------------------
 # APPLICATIONS
