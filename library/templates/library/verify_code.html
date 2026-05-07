@@ -1,11 +1,195 @@
-<h2>Enter Verification Code</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-{% if error %}
-<p style="color:red">{{ error }}</p>
-{% endif %}
+<title>Verify Code</title>
 
-<form method="POST">
-    {% csrf_token %}
-    <input type="text" name="code" placeholder="Enter code">
-    <button type="submit">Verify</button>
-</form>
+<style>
+
+/* RESET */
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+/* BODY */
+body{
+font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+background:linear-gradient(135deg,#0d3baf,#1e3a8a,#2563eb);
+min-height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+padding:20px;
+}
+
+/* CARD */
+.container{
+background:#fff;
+width:100%;
+max-width:420px;
+padding:40px 28px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 20px 45px rgba(0,0,0,0.25);
+animation:fadeIn 0.4s ease;
+}
+
+/* TITLE */
+.container h2{
+font-size:24px;
+color:#1e293b;
+margin-bottom:8px;
+}
+
+/* SUBTITLE */
+.subtitle{
+font-size:14px;
+color:#64748b;
+margin-bottom:25px;
+line-height:1.5;
+}
+
+/* INPUT */
+input{
+width:100%;
+padding:14px;
+border-radius:10px;
+border:1px solid #cbd5e1;
+font-size:16px;
+outline:none;
+transition:0.3s;
+}
+
+input:focus{
+border-color:#2563eb;
+box-shadow:0 0 0 3px rgba(37,99,235,0.2);
+}
+
+/* BUTTON */
+button{
+width:100%;
+margin-top:15px;
+padding:14px;
+border:none;
+border-radius:10px;
+background:#2563eb;
+color:#fff;
+font-size:16px;
+font-weight:600;
+cursor:pointer;
+transition:0.3s;
+}
+
+button:hover{
+background:#1d4ed8;
+transform:translateY(-1px);
+}
+
+/* ERROR */
+.error{
+background:#fee2e2;
+color:#b91c1c;
+padding:10px;
+border-radius:8px;
+font-size:14px;
+margin-bottom:12px;
+}
+
+/* FOOTER */
+.footer{
+margin-top:18px;
+font-size:13px;
+color:#94a3b8;
+}
+
+/* ANIMATION */
+@keyframes fadeIn{
+from{
+opacity:0;
+transform:translateY(15px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
+}
+
+/* RESPONSIVE */
+@media (max-width:480px){
+
+body{
+padding:14px;
+}
+
+.container{
+padding:30px 18px;
+border-radius:14px;
+}
+
+.container h2{
+font-size:20px;
+}
+
+.subtitle{
+font-size:13px;
+margin-bottom:18px;
+}
+
+input{
+padding:12px;
+font-size:15px;
+}
+
+button{
+padding:12px;
+font-size:15px;
+}
+
+}
+
+@media (max-width:320px){
+
+.container{
+padding:25px 15px;
+}
+
+.container h2{
+font-size:18px;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2>Verification Code</h2>
+    <p class="subtitle">Enter the code sent to your email</p>
+
+    {% if error %}
+    <div class="error">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        <input type="text" name="code" placeholder="Enter code" required>
+        <button type="submit">Verify</button>
+    </form>
+
+    <div class="footer">
+        Secure verification required
+    </div>
+
+</div>
+
+</body>
+</html>

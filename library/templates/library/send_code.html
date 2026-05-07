@@ -1,77 +1,211 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Send Verification Code</title>
 
-    <style>
-        body{
-            margin:0;
-            height:100vh;
-            display:flex;
-            justify-content:center;
-            align-items:center;
-            font-family:Arial;
-            background:#0d47a1;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        .box{
-            width:350px;
-            background:#fff;
-            padding:30px;
-            border-radius:12px;
-            text-align:center;
-        }
+<title>Send Verification Code</title>
 
-        h2{
-            color:#0d47a1;
-        }
+<style>
 
-        p{
-            font-size:14px;
-            color:#555;
-        }
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
 
-        button{
-            width:100%;
-            padding:12px;
-            margin-top:15px;
-            background:#0d47a1;
-            color:white;
-            border:none;
-            border-radius:6px;
-            cursor:pointer;
-        }
+body{
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+font-family:Arial,sans-serif;
+background:linear-gradient(135deg,#0d47a1,#1565c0);
+padding:20px;
+}
 
-        button:hover{
-            background:#1565c0;
-        }
+/* MAIN BOX */
+.box{
+width:100%;
+max-width:380px;
+background:#fff;
+padding:40px 30px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 20px 50px rgba(0,0,0,0.25);
+animation:fadeIn 0.5s ease;
+position:relative;
+overflow:hidden;
+}
 
-        a{
-            display:block;
-            margin-top:10px;
-            font-size:13px;
-            color:#0d47a1;
-            text-decoration:none;
-        }
-    </style>
+/* GLOW EFFECT */
+.box::before{
+content:"";
+position:absolute;
+top:-70px;
+left:-70px;
+width:150px;
+height:150px;
+background:rgba(13,71,161,0.1);
+border-radius:50%;
+filter:blur(20px);
+}
+
+/* TITLE */
+h2{
+color:#0d47a1;
+font-size:24px;
+margin-bottom:15px;
+}
+
+/* TEXT */
+p{
+font-size:14px;
+color:#555;
+margin-bottom:10px;
+line-height:1.5;
+}
+
+/* EMAIL */
+.email{
+background:#f5f9ff;
+padding:12px;
+border-radius:10px;
+font-size:14px;
+font-weight:bold;
+color:#0d47a1;
+margin:15px 0;
+word-break:break-word;
+}
+
+/* BUTTON */
+button{
+width:100%;
+padding:14px;
+margin-top:15px;
+background:linear-gradient(90deg,#0d47a1,#1565c0);
+color:white;
+border:none;
+border-radius:10px;
+cursor:pointer;
+font-size:15px;
+font-weight:bold;
+transition:0.3s;
+}
+
+button:hover{
+transform:translateY(-2px);
+box-shadow:0 10px 20px rgba(13,71,161,0.3);
+}
+
+/* LINK */
+a{
+display:block;
+margin-top:18px;
+font-size:14px;
+color:#0d47a1;
+text-decoration:none;
+font-weight:bold;
+}
+
+a:hover{
+text-decoration:underline;
+}
+
+/* ANIMATION */
+@keyframes fadeIn{
+from{
+opacity:0;
+transform:translateY(20px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
+}
+
+/* RESPONSIVE */
+@media(max-width:480px){
+
+.box{
+padding:30px 20px;
+border-radius:15px;
+}
+
+h2{
+font-size:20px;
+}
+
+p{
+font-size:13px;
+}
+
+.email{
+font-size:13px;
+padding:10px;
+}
+
+button{
+padding:12px;
+font-size:14px;
+}
+
+a{
+font-size:13px;
+}
+
+}
+
+@media(max-width:320px){
+
+.box{
+padding:25px 15px;
+}
+
+h2{
+font-size:18px;
+}
+
+p{
+font-size:12px;
+}
+
+button{
+font-size:13px;
+}
+
+}
+
+</style>
+
 </head>
 
 <body>
 
 <div class="box">
 
-    <h2>Email Verification</h2>
+<h2>Email Verification</h2>
 
-    <p>We will send a verification code to:</p>
+<p>
+We will send a verification code to:
+</p>
 
-    <p><b>{{ email }}</b></p>
+<div class="email">
+{{ email }}
+</div>
 
-    <form method="GET" action="{% url 'send_verification_code' %}">
-        <button type="submit">Send Code</button>
-    </form>
+<form method="GET" action="{% url 'send_verification_code' %}">
+    
+    <button type="submit">
+        Send Code
+    </button>
 
-    <a href="{% url 'login' %}">Back to login</a>
+</form>
+
+<a href="{% url 'login' %}">
+    Back to login
+</a>
 
 </div>
 

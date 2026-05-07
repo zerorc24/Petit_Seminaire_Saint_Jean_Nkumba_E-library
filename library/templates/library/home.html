@@ -1,11 +1,9 @@
+{% extends "library/base.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>PSSJ Nkumba E-Library</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+{% block title %}Library | Petit Séminaire Saint Jean Nkumba{% endblock %}
+
+{% block content %}
 <style>
 /* ---------- THEME COLORS ---------- */
 :root{
@@ -29,56 +27,71 @@ body{
   line-height:1.6;
 }
 
-/* ---------- Header ---------- */
-header{
-  display:flex;
-  flex-wrap:wrap;
-  align-items:center;
-  justify-content:space-between;
-  padding:12px 20px;
-  background:linear-gradient(90deg,var(--main-blue),var(--light-blue));
-  color:#fff;
-}
+
 
 header img{
   width:50px;
 }
 
-header nav{
-  display:flex;
-  flex-wrap:wrap;
-  gap:15px;
-}
-
-header nav a{
-  color:#fff;
-  text-decoration:none;
-  font-weight:500;
-  transition:0.3s;
-}
-
-header nav a:hover{
-  color:#ffeb3b;
-}
 
 /* ---------- Hero ---------- */
 .hero{
-  position:relative;
-  min-height:400px;
-  border-radius:0 0 40px 40px;
+  position: relative;
+  width: 100%;
+  height: 100vh;
 
-  background-image:url("{% static 'images/sky-header.png' %}");
-  background-size:cover;
-  background-position:center;
-  background-repeat:no-repeat;
+  background: url("{% static 'images/sky-header.png' %}") no-repeat center center/cover;
+
+  border-radius: 0 0 35px 35px;
+  overflow: hidden;
 }
 
-/* Optional light overlay for brightness */
+/* Dark overlay */
 .hero::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:rgba(255,255,255,0.1);
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.15);
+}
+
+/* ---------- Tablets ---------- */
+@media screen and (max-width: 992px){
+  .hero{
+    height: 75vh;
+    background-position: center;
+  }
+}
+
+/* ---------- Phones ---------- */
+@media screen and (max-width: 768px){
+  .hero{
+    height: 60vh;
+
+    /* important */
+    background-size: cover;
+    background-position: center top;
+
+    border-radius: 0 0 25px 25px;
+  }
+}
+
+/* ---------- Small Phones ---------- */
+@media screen and (max-width: 480px){
+  .hero{
+    height: 50vh;
+
+    /* makes image fit better */
+    background-position: top center;
+
+    border-radius: 0 0 20px 20px;
+  }
+}
+
+/* ---------- Tiny Phones ---------- */
+@media screen and (max-width: 360px){
+  .hero{
+    height: 45vh;
+  }
 }
 
 /* ---------- Section Titles ---------- */
@@ -223,52 +236,12 @@ header nav a:hover{
   }
 }
 </style>
-</head>
-<body>
 
-<!-- Header -->
-<header>
-<img src="{% static 'images/pssj-nkumba-logo.png' %}" alt="Logo">
-
-<nav>
-{% if user.is_authenticated %}
-    <a href="{% url 'home' %}">Home</a>
-    <a href="{% url 'library' %}">Library</a>
-    <a href="{% url 'dashboard' %}">Dashboard</a>
-
-    {% if user.is_staff %}
-        <a href="{% url 'admin_dashboard' %}">Admin</a>
-    {% endif %}
-
-    <a href="{% url 'logout' %}">Logout</a>
-{% else %}
-    <a href="{% url 'login' %}?next={% url 'library' %}">Library</a>
-    <a href="{% url 'login' %}?next={% url 'dashboard' %}">Dashboard</a>
-    <a href="{% url 'login' %}">Login</a>
-{% endif %}
-</nav>
-</header>
 
 <!-- Hero Image Only -->
 <section class="hero"></section>
 
-<!-- Section Title for Latest Books -->
-<section class="section-title">
-<h2>Latest Books</h2>
-</section>
 
-<!-- Latest Books Grid -->
-<section class="books">
-<div class="book-grid">
-{% for book in latest_books %}
-<div class="book">
-<img src="{% static 'images/book-cover.png' %}" alt="{{ book.title }}">
-<h4>{{ book.title }}</h4>
-<p>{{ book.subject }}</p>
-</div>
-{% endfor %}
-</div>
-</section>
 
 <!-- Call to Action -->
 <section class="cta">
@@ -282,59 +255,6 @@ header nav a:hover{
 {% endif %}
 </section>
 
-<!-- Footer -->
-<footer class="footer">
-<div class="footer-container">
-<div class="footer-about">
-<h3>PSSJ Nkumba Digital Library</h3>
-<p>The digital learning platform for Petit Séminaire Saint Jean Nkumba, providing students with easy access to academic books and educational resources.</p>
-</div>
-
-<div class="footer-contact">
-<h3>Contact Us</h3>
-<p><strong>School:</strong> Petit Séminaire Saint Jean Nkumba</p>
-<p><strong>Location:</strong> Nkumba, Rwanda</p>
-<p><strong>Email:</strong> library@pssjnkumba.edu</p>
-<p><strong>Phone:</strong> +250 788 823 161</p>
-</div>
-</div>
-
-<div class="footer-bottom">
-<p>© 2026 Petit Séminaire Saint Jean Nkumba Digital Library</p>
-<!-- Translator -->
-<div class="gtranslate_wrapper"></div>
-
-<script>
-window.gtranslateSettings = {
-"default_language":"en",
-"detect_browser_language":true,
-
-"languages":[
-"en","fr","de","it","es","hi","ar","zh-CN","ru",
-"af","sw","ur","am","xh","la"
-],
-
-"wrapper_selector":".gtranslate_wrapper",
-"flag_size":16,
-"switcher_horizontal_position":"right",
-"switcher_vertical_position":"bottom",
-"flag_style":"3d",
-"alt_flags":{"en":"usa"},
-
-"switcher_text_color":"#f7f7f7",
-"switcher_arrow_color":"#f2f2f2",
-"switcher_border_color":"#161616",
-"switcher_background_color":"#303030",
-"switcher_background_shadow_color":"#474747",
-"switcher_background_hover_color":"#3a3a3a",
-
-"dropdown_text_color":"#eaeaea",
-"dropdown_hover_color":"#748393",
-"dropdown_background_color":"#474747"
-}
-</script>
-
-<script src="https://cdn.gtranslate.net/widgets/latest/dwf.js" defer></script>
-</footer>
 </body>
 </html>
+{% endblock %}

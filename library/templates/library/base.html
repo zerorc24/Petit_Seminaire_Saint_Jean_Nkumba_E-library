@@ -1,65 +1,104 @@
-{% load static %}
+{% load static %} 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Petit Séminaire Saint Jean Nkumba | Digital Library{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{% static 'css/animations.css' %}">
 </head>
+
 <body class="min-h-screen flex flex-col bg-gradient-to-b from-white via-blue-100 to-blue-300 text-gray-800 font-sans">
 
 <!-- HEADER -->
-<header class="bg-blue-700 shadow-md">
-    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+<header class="bg-blue-500 text-white p-4">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4">
 
-        <!-- Logo + Name -->
-        <div class="flex items-center gap-4">
-            <img src="{% static 'images/pssj-nkumba-logo.png' %}" alt="Logo" class="h-12 w-auto">
-            <div class="leading-tight">
-                <h1 class="text-lg font-bold uppercase text-white">Petit Séminaire Saint Jean Nkumba</h1>
-                <p class="text-xs text-blue-200">Digital Library</p>
+        <div class="flex items-center justify-between">
+
+            <!-- Logo + Name -->
+            <div class="flex items-center gap-3">
+                <img src="{% static 'images/pssj-nkumba-logo.png' %}" alt="Logo" class="h-10 sm:h-12 w-auto">
+                <div class="leading-tight">
+                    <h1 class="text-sm sm:text-lg font-bold uppercase text-white">
+                        Petit Séminaire Saint Jean Nkumba
+                    </h1>
+                    <p class="text-[10px] sm:text-xs text-blue-200">Digital Library</p>
+                </div>
             </div>
-        </div>
 
-        <!-- Navigation -->
-        <nav class="flex gap-6 text-sm font-medium">
-            {% if user.is_authenticated %}
-                <a href="{% url 'home' %}" class="text-yellow-400 hover:text-yellow-200 transition font-semibold">Home</a>
-                <a href="{% url 'dashboard' %}" class="text-white hover:text-blue-200 transition font-semibold">Dashboard</a>
-                <a href="{% url 'library' %}" class="text-white hover:text-blue-200 transition font-semibold">Library</a>
-                <a href="{% url 'logout' %}" class="text-red-400 hover:text-red-200 transition font-semibold">Logout</a>
-            {% else %}
-                <a href="{% url 'login' %}?next={% url 'dashboard' %}" class="text-white hover:text-blue-200 transition font-semibold">Dashboard</a>
-                <a href="{% url 'login' %}?next={% url 'library' %}" class="text-white hover:text-blue-200 transition font-semibold">Library</a>
-                <a href="{% url 'login' %}" class="text-red-400 hover:text-red-200 transition font-semibold">Login</a>
-            {% endif %}
-        </nav>
+            <!-- Hamburger Button -->
+            <button id="menu-btn" class="md:hidden text-white text-2xl focus:outline-none">
+    ☰
+</button>
+            <!-- Navigation (Desktop) -->
+            <nav class="hidden md:flex gap-6 text-sm font-medium">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'home' %}" class="text-yellow-400 hover:text-yellow-200 transition font-semibold">Home</a>
+                    <a href="{% url 'dashboard' %}" class="text-white hover:text-blue-200 transition font-semibold">Dashboard</a>
+                    <a href="{% url 'library' %}" class="text-white hover:text-blue-200 transition font-semibold">Library</a>
+                    <a href="{% url 'logout' %}" class="text-red-400 hover:text-red-200 transition font-semibold">Logout</a>
+                {% else %}
+                    <a href="{% url 'login' %}?next={% url 'dashboard' %}" class="text-white hover:text-blue-200 transition font-semibold">Dashboard</a>
+                    <a href="{% url 'login' %}?next={% url 'library' %}" class="text-white hover:text-blue-200 transition font-semibold">Library</a>
+                    <a href="{% url 'login' %}" class="text-red-400 hover:text-red-200 transition font-semibold">Login</a>
+                {% endif %}
+            </nav>
+        </div>
 
     </div>
 </header>
+<!-- OVERLAY -->
+<div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-40"></div>
 
+<!-- OFFCANVAS MENU -->
+<div id="offcanvas"
+     class="fixed top-0 left-0 h-full w-64 bg-blue-800 transform -translate-x-full transition-transform duration-300 z-50 p-6">
+
+    <!-- Close Button -->
+    <button id="close-btn" class="text-white text-2xl mb-6">✕</button>
+
+    <!-- Menu Links -->
+    <nav class="flex flex-col gap-4 text-sm font-medium">
+        {% if user.is_authenticated %}
+            <a href="{% url 'home' %}" class="text-yellow-400">Home</a>
+            <a href="{% url 'dashboard' %}" class="text-white">Dashboard</a>
+            <a href="{% url 'library' %}" class="text-white">Library</a>
+            <a href="{% url 'logout' %}" class="text-red-400">Logout</a>
+        {% else %}
+            <a href="{% url 'login' %}?next={% url 'dashboard' %}" class="text-white">Dashboard</a>
+            <a href="{% url 'login' %}?next={% url 'library' %}" class="text-white">Library</a>
+            <a href="{% url 'login' %}" class="text-red-400">Login</a>
+        {% endif %}
+    </nav>
+</div>
 <!-- MAIN CONTENT -->
-<main class="flex-1 py-6">
+<main class="flex-1 py-4 sm:py-6 px-3 sm:px-6">
     {% block content %}{% endblock %}
 </main>
 
 <!-- FOOTER -->
-<footer class="bg-black text-gray-300 py-12 mt-12">
-    <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-3 gap-8">
+<footer class="bg-blue-900 text-gray-300 py-10 mt-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 grid gap-8 sm:grid-cols-2 md:grid-cols-3">
+
         <div>
             <h4 class="text-white font-bold mb-4">About</h4>
-            <p class="text-sm">
+            <p class="text-sm leading-relaxed">
                 Petit Séminaire Saint Jean Nkumba Digital Library empowers students and teachers with instant 
                 access to academic resources while upholding seminary values.
             </p>
         </div>
+
         <div>
             <h4 class="text-white font-bold mb-4">Contact</h4>
             <p class="text-sm">Kigali, Rwanda</p>
-            <p class="text-sm">psnkumba88@yahoo.fr</p>
+            <p class="text-sm break-all"><a href="mailto:psnkumbaped@yahoo.com" class="text-white no-underline hover:underline">
+  psnkumbaped@yahoo.com
+</a></p>
             <p class="text-sm">+250 788 823 161</p>
         </div>
+
         <div>
             <h4 class="text-white font-bold mb-4">Features</h4>
             <ul class="space-y-2 text-sm">
@@ -70,11 +109,51 @@
                 <li>Access anywhere, anytime</li>
             </ul>
         </div>
+
     </div>
-    <div class="text-center text-gray-500 text-xs mt-8">
+
+    <div class="text-center text-gray-500 text-xs mt-8 px-4">
         © {{ now|date:"Y" }} Petit Séminaire Saint Jean Nkumba · Digital Library
     </div>
 </footer>
+<!-- MOBILE MENU SCRIPT -->
+<script>
+    const menuBtn = document.getElementById('menu-btn');
+    const offcanvas = document.getElementById('offcanvas');
+    const overlay = document.getElementById('overlay');
+    const closeBtn = document.getElementById('close-btn');
 
+    function openMenu() {
+        offcanvas.classList.remove('-translate-x-full');
+        overlay.classList.remove('hidden');
+    }
+
+    function closeMenu() {
+        offcanvas.classList.add('-translate-x-full');
+        overlay.classList.add('hidden');
+    }
+
+    menuBtn.addEventListener('click', openMenu);
+    closeBtn.addEventListener('click', closeMenu);
+    overlay.addEventListener('click', closeMenu);
+</script>
+<!-- Translator -->
+<div class="gtranslate_wrapper"></div>
+<!-- Translator Settings -->
+<script>
+window.gtranslateSettings = {
+  default_language: "en",
+  detect_browser_language: true,
+  languages: ["en", "fr", "sw", "la", "es", "de"], 
+  // en = English, fr = French, sw = Swahili, la = Latin, es = Spanish, de = German
+  wrapper_selector: ".gtranslate_wrapper",
+  switcher_horizontal_position: "right",
+  switcher_vertical_position: "bottom",
+  float_switcher_open_direction: "top",
+  flag_style: "3d"
+};
+</script>
+
+<script src="https://cdn.gtranslate.net/widgets/latest/float.js" defer></script>
 </body>
 </html>

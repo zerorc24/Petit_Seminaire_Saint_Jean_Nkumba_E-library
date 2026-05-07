@@ -1,117 +1,115 @@
 {% extends "library/base.html" %}
 {% load static %}
 
+{% block title %}Library | Petit Séminaire Saint Jean Nkumba{% endblock %}
+
 {% block content %}
-
+<div class="max-w-7xl mx-auto px-4 sm:px-6">
     
-<div class="max-w-6xl mx-auto px-4 py-8">
-
-    <!-- HEADER -->
-    <div class="text-center mb-10">
-        <h1 class="text-4xl font-extrabold text-blue-900 tracking-tight">
-            📚 Digital Library
-        </h1>
-        <p class="text-gray-500 mt-2">Search and explore books by subject, title, or level</p>
+    <!-- Title & Breadcrumb -->
+    <div class="mb-10 animate-fade-in">
+        <h2 class="text-3xl font-black text-blue-900 tracking-tight">Academic Catalog</h2>
+        <div class="h-1 w-20 bg-blue-600 rounded-full mt-2"></div>
     </div>
 
-    <!-- SEARCH BOX -->
-    <form method="get" class="mb-10 flex justify-center">
-        <div class="w-full max-w-2xl flex shadow-lg rounded-2xl overflow-hidden border border-gray-200">
-
+    <!-- Search Section: Glassmorphism Style -->
+    <section class="mb-12">
+        <form method="get" class="relative max-w-3xl mx-auto group">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <svg class="h-5 w-5 text-blue-500 group-focus-within:text-blue-700 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+            </div>
             <input
                 type="text"
                 name="q"
-                placeholder="Search books..."
+                placeholder="Search by title, subject, or level (e.g. Senior 4)..."
                 value="{{ query }}"
-                class="w-full px-5 py-3 outline-none text-gray-700"
+                class="w-full pl-12 pr-32 py-4 bg-white/40 backdrop-blur-xl border border-white/60 rounded-2xl shadow-2xl 
+                       focus:ring-4 focus:ring-blue-500/20 focus:bg-white/80 transition-all text-blue-900 placeholder-blue-400 outline-none"
             >
-
             <button
                 type="submit"
-                class="bg-blue-900 text-white px-6 font-semibold hover:bg-blue-800 transition">
+                class="absolute right-2 top-2 bottom-2 px-8 bg-blue-700 text-white rounded-xl font-bold hover:bg-blue-800 active:scale-95 transition-all shadow-lg">
                 Search
             </button>
-        </div>
-    </form>
+        </form>
+    </section>
 
-    <!-- BOOK GRID -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-
+    <!-- Books Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {% for book in page_obj %}
-        <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition duration-300 overflow-hidden border border-gray-100">
+            <div class="group relative bg-white/30 backdrop-blur-lg border border-white/50 rounded-3xl p-5 flex flex-col shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
+                
+                <!-- Category Tag -->
+                <div class="flex justify-between items-start mb-4">
+                    <span class="px-3 py-1 rounded-lg bg-blue-700 text-white text-[10px] font-bold uppercase tracking-widest">
+                        {{ book.level }}
+                    </span>
+                    <div class="p-2 bg-white/50 rounded-full">
+                        <svg class="w-4 h-4 text-blue-700" fill="currentColor" viewBox="0 0 20 20"><path d="M9 4.804A7.994 7.994 0 002 12a7.994 7.994 0 007 7.196V4.804z"></path></svg>
+                    </div>
+                </div>
 
-            <!-- CARD HEADER -->
-            <div class="p-5">
-                <h3 class="text-xl font-bold text-blue-900 mb-1">
-                    {{ book.title }}
-                </h3>
+                <!-- Book Info -->
+                <div class="flex-grow">
+                    <h3 class="font-extrabold text-xl text-blue-900 leading-tight mb-2 group-hover:text-blue-700 transition-colors">
+                        {{ book.title }}
+                    </h3>
+                    <p class="text-sm font-medium text-blue-800/60 uppercase italic">{{ book.subject }}</p>
+                </div>
 
-                <p class="text-sm text-gray-500">
-                    {{ book.subject }} • Level {{ book.level }}
-                </p>
-            </div>
-
-            <!-- ACTION -->
-            <div class="px-5 pb-5 flex justify-between items-center">
-
+                <!-- Action Button -->
                 {% if book.pdf_url %}
-                <a href="{{ book.pdf_url }}" target="_blank"
-                   class="inline-flex items-center gap-2 bg-blue-900 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-800 transition">
-                    📖 Read Book
-                </a>
-                {% else %}
-                <span class="text-sm text-gray-400">No PDF available</span>
+                    <a href="{{ book.pdf_url }}" target="_blank"
+                       class="mt-6 flex items-center justify-center gap-2 w-full py-3 bg-white/80 text-blue-900 rounded-2xl font-bold border border-white hover:bg-blue-700 hover:text-white hover:border-blue-700 transition-all shadow-sm">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                        Read Online
+                    </a>
                 {% endif %}
+            </div>
+        {% empty %}
+            <div class="col-span-full py-20 text-center bg-white/20 backdrop-blur-md rounded-3xl border border-dashed border-blue-300">
+                <p class="text-2xl font-bold text-blue-900/40 italic">No resources found matching your search</p>
+                <a href="{% url 'library' %}" class="mt-4 inline-block text-blue-700 underline font-semibold">Clear Filters</a>
+            </div>
+        {% endfor %}
+    </div>
 
+    <!-- Modern Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="mt-16 flex justify-center pb-10">
+        <nav class="inline-flex items-center p-1 bg-white/40 backdrop-blur-md rounded-2xl border border-white/60 shadow-xl">
+            {% if page_obj.has_previous %}
+                <a href="?q={{ query|urlencode }}&page={{ page_obj.previous_page_number }}" 
+                   class="p-3 rounded-xl hover:bg-blue-700 hover:text-white transition-all text-blue-900">
+                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                </a>
+            {% endif %}
+
+            <div class="px-6 py-2 text-sm font-black text-blue-900 uppercase tracking-widest">
+                Page {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
             </div>
 
-        </div>
-        {% empty %}
-
-        <!-- EMPTY STATE -->
-        <div class="col-span-full text-center py-20">
-            <div class="text-5xl mb-4">📭</div>
-            <h2 class="text-xl font-bold text-gray-700">No books found</h2>
-            <p class="text-gray-500 mt-2">Try searching with different keywords</p>
-        </div>
-
-        {% endfor %}
-
+            {% if page_obj.has_next %}
+                <a href="?q={{ query|urlencode }}&page={{ page_obj.next_page_number }}" 
+                   class="p-3 rounded-xl hover:bg-blue-700 hover:text-white transition-all text-blue-900">
+                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                </a>
+            {% endif %}
+        </nav>
     </div>
-
-    <!-- PAGINATION -->
-    <div class="mt-12 flex justify-center items-center gap-3">
-
-        {% if page_obj.has_previous %}
-            <a class="px-4 py-2 rounded-lg border bg-white hover:bg-gray-50"
-               href="?q={{ query|urlencode }}&page={{ page_obj.previous_page_number }}">
-                ← Prev
-            </a>
-        {% endif %}
-
-        <span class="text-gray-600 text-sm">
-            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-        </span>
-
-        {% if page_obj.has_next %}
-            <a class="px-4 py-2 rounded-lg border bg-white hover:bg-gray-50"
-               href="?q={{ query|urlencode }}&page={{ page_obj.next_page_number }}">
-                Next →
-            </a>
-        {% endif %}
-
-    </div>
-
+    {% endif %}
 </div>
-<!--translator-->
-<div class="gtranslate_wrapper"></div>
 
+
+<!-- Translator -->
+<div class="gtranslate_wrapper"></div>
 <script>
 window.gtranslateSettings = {
   default_language: "en",
   detect_browser_language: true,
-  languages: ["en", "fr", "sw", "la", "es", "de"], 
-  // en = English, fr = French, sw = Swahili, la = Latin, es = Spanish, de = German
+  languages: ["en", "fr", "sw", "la", "es", "de"],
   wrapper_selector: ".gtranslate_wrapper",
   switcher_horizontal_position: "right",
   switcher_vertical_position: "bottom",
@@ -119,9 +117,6 @@ window.gtranslateSettings = {
   flag_style: "3d"
 };
 </script>
-
 <script src="https://cdn.gtranslate.net/widgets/latest/float.js" defer></script>
 
 {% endblock %}
-
-

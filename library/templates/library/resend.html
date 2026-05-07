@@ -1,27 +1,247 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-    <title>Resend Verification</title>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Resend Verification</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+font-family:Arial,sans-serif;
+background:linear-gradient(135deg,#0d47a1,#1976d2);
+padding:20px;
+}
+
+/* CARD */
+.card{
+width:100%;
+max-width:400px;
+background:#fff;
+padding:40px 30px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 20px 50px rgba(0,0,0,0.25);
+position:relative;
+overflow:hidden;
+animation:fadeIn 0.5s ease;
+}
+
+/* GLOW EFFECT */
+.card::before{
+content:"";
+position:absolute;
+top:-70px;
+left:-70px;
+width:150px;
+height:150px;
+background:rgba(13,71,161,0.1);
+border-radius:50%;
+filter:blur(20px);
+}
+
+/* TITLE */
+h2{
+color:#0d47a1;
+font-size:24px;
+margin-bottom:10px;
+}
+
+/* SUBTITLE */
+.subtitle{
+font-size:14px;
+color:#666;
+margin-bottom:25px;
+line-height:1.5;
+}
+
+/* INPUT */
+input{
+width:100%;
+padding:14px;
+border:1px solid #ddd;
+border-radius:10px;
+outline:none;
+font-size:15px;
+background:#f8f9ff;
+transition:0.3s;
+margin-bottom:15px;
+}
+
+input:focus{
+border-color:#0d47a1;
+background:#fff;
+box-shadow:0 0 0 3px rgba(13,71,161,0.15);
+}
+
+/* BUTTON */
+button{
+width:100%;
+padding:14px;
+background:linear-gradient(90deg,#0d47a1,#1976d2);
+color:white;
+border:none;
+border-radius:10px;
+font-size:15px;
+font-weight:bold;
+cursor:pointer;
+transition:0.3s;
+}
+
+button:hover{
+transform:translateY(-2px);
+box-shadow:0 10px 20px rgba(13,71,161,0.3);
+}
+
+/* MESSAGES */
+.message{
+background:#e8f5e9;
+color:#2e7d32;
+padding:10px;
+border-radius:8px;
+font-size:13px;
+margin-bottom:15px;
+line-height:1.5;
+}
+
+/* LINK */
+a{
+display:block;
+margin-top:18px;
+font-size:14px;
+font-weight:bold;
+color:#0d47a1;
+text-decoration:none;
+}
+
+a:hover{
+text-decoration:underline;
+}
+
+/* ANIMATION */
+@keyframes fadeIn{
+from{
+opacity:0;
+transform:translateY(20px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
+}
+
+/* RESPONSIVE */
+@media(max-width:480px){
+
+.card{
+padding:30px 20px;
+border-radius:15px;
+}
+
+h2{
+font-size:20px;
+}
+
+.subtitle{
+font-size:13px;
+}
+
+input{
+padding:12px;
+font-size:14px;
+}
+
+button{
+padding:12px;
+font-size:14px;
+}
+
+a{
+font-size:13px;
+}
+
+}
+
+@media(max-width:320px){
+
+.card{
+padding:25px 15px;
+}
+
+h2{
+font-size:18px;
+}
+
+.subtitle{
+font-size:12px;
+}
+
+input{
+font-size:13px;
+}
+
+button{
+font-size:13px;
+}
+
+}
+
+</style>
+
 </head>
+
 <body>
 
-<h2>Resend Verification Email</h2>
+<div class="card">
 
-<form method="post">
+<h2>Resend Verification</h2>
+
+<div class="subtitle">
+Enter your email address to receive a new verification code.
+</div>
+
+<form method="POST">
+
     {% csrf_token %}
     
-    <input type="email" name="email" placeholder="Enter your email" required>
+    <input type="email" 
+           name="email" 
+           placeholder="Enter your email" 
+           required>
 
-    <button type="submit">Resend Email</button>
+    <button type="submit">
+        Resend Email
+    </button>
+
 </form>
 
+<!-- MESSAGES -->
 {% if messages %}
     {% for message in messages %}
-        <p>{{ message }}</p>
+        <div class="message">
+            {{ message }}
+        </div>
     {% endfor %}
 {% endif %}
 
-<a href="{% url 'login' %}">Back to Login</a>
+<a href="{% url 'login' %}">
+    Back to Login
+</a>
+
+</div>
 
 </body>
 </html>

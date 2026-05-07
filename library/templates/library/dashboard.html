@@ -1,138 +1,210 @@
 {% extends "library/base.html" %}
 
 {% block content %}
-<div class="min-h-screen px-4 sm:px-6 py-10
+
+<div class="min-h-screen px-4 sm:px-6 lg:px-8 py-8 sm:py-10
             bg-gradient-to-br from-slate-50 via-blue-50 to-blue-200">
 
     <!-- HEADER -->
-    <div class="max-w-7xl mx-auto mb-12 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div class="max-w-7xl mx-auto mb-10 sm:mb-12
+                flex flex-col sm:flex-row
+                sm:items-center sm:justify-between gap-4">
 
         <div>
-            <h1 class="text-3xl sm:text-4xl font-extrabold text-blue-900 tracking-tight">
+
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl
+                       font-extrabold text-blue-900 tracking-tight">
                 📊 Dashboard
             </h1>
-            <p class="text-gray-500 text-sm mt-1">
+
+            <p class="text-gray-500 text-sm sm:text-base mt-2">
                 Monitor your digital library performance
             </p>
+
         </div>
 
-        <div class="text-xs text-gray-400">
-            Last updated: <span class="font-medium text-gray-600">now</span>
+        <div class="text-xs sm:text-sm text-gray-400
+                    bg-white/70 px-4 py-2 rounded-xl shadow-sm w-fit">
+            Last updated:
+            <span class="font-medium text-gray-600">
+                now
+            </span>
         </div>
 
     </div>
 
     <!-- MAIN GRID -->
-    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="max-w-7xl mx-auto
+                grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        <!-- LEFT: BIG STAT -->
+        <!-- LEFT: TOTAL BOOKS -->
         <div class="lg:col-span-1">
-            <div class="relative rounded-3xl p-8 sm:p-10
+
+            <div class="relative rounded-3xl
+                        p-6 sm:p-8 lg:p-10
                         bg-gradient-to-br from-blue-900 to-blue-700
                         text-white shadow-2xl overflow-hidden">
 
-                <!-- Glow Effect -->
-                <div class="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+                <!-- GLOW EFFECT -->
+                <div class="absolute -top-10 -right-10
+                            w-40 h-40 bg-white/10
+                            rounded-full blur-3xl">
+                </div>
 
-                <p class="uppercase tracking-widest text-xs opacity-80 mb-3">
+                <p class="uppercase tracking-widest
+                          text-xs sm:text-sm opacity-80 mb-3">
                     Total Books
                 </p>
 
-                <h2 class="text-6xl sm:text-7xl font-extrabold leading-none">
+                <h2 class="text-5xl sm:text-6xl lg:text-7xl
+                           font-extrabold leading-none">
                     {{ total_books }}
                 </h2>
 
-                <p class="mt-4 text-sm opacity-80">
+                <p class="mt-4 text-sm sm:text-base opacity-80">
                     All books currently in your system
                 </p>
 
             </div>
+
         </div>
 
         <!-- RIGHT SIDE -->
-        <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div class="lg:col-span-2
+                    grid grid-cols-1 md:grid-cols-2 gap-6">
 
-            <!-- SUBJECTS -->
-            <div class="rounded-3xl p-6 sm:p-7
+            <!-- SUBJECTS CARD -->
+            <div class="rounded-3xl
+                        p-5 sm:p-6 lg:p-7
                         bg-white border border-gray-100
-                        shadow-lg hover:shadow-xl transition duration-300">
+                        shadow-lg hover:shadow-2xl
+                        transition duration-300">
 
+                <!-- HEADER -->
                 <div class="flex justify-between items-center mb-5">
-                    <h3 class="text-lg font-bold text-blue-900">
+
+                    <h3 class="text-lg sm:text-xl
+                               font-bold text-blue-900">
                         📚 Subjects
                     </h3>
-                    <span class="text-xs text-gray-400">Distribution</span>
+
+                    <span class="text-xs text-gray-400">
+                        Distribution
+                    </span>
+
                 </div>
 
-                <div class="space-y-3 max-h-64 overflow-y-auto pr-1">
+                <!-- SUBJECT LIST -->
+                <div class="space-y-4 max-h-72 overflow-y-auto pr-1">
 
                     {% for item in subject_counts %}
+
                     <div class="flex flex-col gap-1">
 
                         <div class="flex justify-between text-sm">
-                            <span class="font-medium text-gray-700">
+
+                            <span class="font-medium text-gray-700 break-words">
                                 {{ item.subject }}
                             </span>
+
                             <span class="text-blue-700 font-semibold">
                                 {{ item.count }}
                             </span>
+
                         </div>
 
-                        <!-- Progress Bar -->
+                        <!-- PROGRESS BAR -->
                         <div class="w-full bg-gray-100 rounded-full h-2">
-                            <div class="bg-blue-700 h-2 rounded-full transition-all duration-500"
+
+                            <div class="bg-blue-700 h-2 rounded-full
+                                        transition-all duration-500"
                                  style="width: {{ item.count|add:0 }}0%;">
                             </div>
+
                         </div>
 
                     </div>
+
                     {% endfor %}
 
                 </div>
 
             </div>
 
-            <!-- LEVELS -->
-            <div class="rounded-3xl p-6 sm:p-7
+            <!-- LEVELS CARD -->
+            <div class="rounded-3xl
+                        p-5 sm:p-6 lg:p-7
                         bg-white border border-gray-100
-                        shadow-lg hover:shadow-xl transition duration-300">
+                        shadow-lg hover:shadow-2xl
+                        transition duration-300">
 
+                <!-- HEADER -->
                 <div class="flex justify-between items-center mb-5">
-                    <h3 class="text-lg font-bold text-blue-900">
+
+                    <h3 class="text-lg sm:text-xl
+                               font-bold text-blue-900">
                         🎓 Levels
                     </h3>
-                    <span class="text-xs text-gray-400">Breakdown</span>
+
+                    <span class="text-xs text-gray-400">
+                        Breakdown
+                    </span>
+
                 </div>
 
-                <div class="space-y-3 max-h-64 overflow-y-auto pr-1">
+                <!-- LEVEL LIST -->
+                <div class="space-y-3 max-h-72 overflow-y-auto pr-1">
 
                     {% for item in level_counts %}
-                    <div class="flex justify-between items-center
-                                bg-gray-50 px-4 py-2 rounded-lg hover:bg-blue-50 transition">
 
-                        <span class="text-gray-700 text-sm font-medium">
+                    <div class="flex justify-between items-center
+                                bg-gray-50 px-4 py-3 rounded-xl
+                                hover:bg-blue-50 transition">
+
+                        <span class="text-gray-700
+                                     text-sm sm:text-base
+                                     font-medium">
+
                             {{ item.level }}
+
                         </span>
 
-                        <span class="text-blue-900 font-bold text-sm">
+                        <span class="text-blue-900
+                                     font-bold text-sm sm:text-base">
+
                             {{ item.count }}
+
                         </span>
 
                     </div>
+
                     {% endfor %}
 
                 </div>
 
+                <!-- ADMIN BUTTON -->
                 {% if request.user.is_superuser %}
+
                 <div class="mt-6">
+
                     <a href="{% url 'bulk_upload_books' %}"
-                       class="w-full inline-flex justify-center items-center
-                              bg-blue-900 text-white py-3 rounded-xl
-                              text-sm font-semibold shadow hover:bg-blue-800
-                              transition">
+
+                       class="w-full inline-flex
+                              justify-center items-center
+                              bg-blue-900 text-white
+                              py-3 px-4 rounded-xl
+                              text-sm sm:text-base
+                              font-semibold shadow-lg
+                              hover:bg-blue-800
+                              hover:scale-[1.02]
+                              transition duration-300">
+
                         ⬆ Bulk Upload Books
+
                     </a>
+
                 </div>
+
                 {% endif %}
 
             </div>
@@ -142,4 +214,5 @@
     </div>
 
 </div>
+
 {% endblock %}
