@@ -11,9 +11,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # -----------------------------------
 # SECURITY
 # -----------------------------------
-SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-secret-key')
 
-DEBUG = os.environ.get("DEBUG", "False") == "True"
+DEBUG = True
 
 ALLOWED_HOSTS = [
     "petit-seminaire-saint-jean-nkumba-e.onrender.com",
@@ -119,6 +119,7 @@ else:
         }
     }
 
+
 # -----------------------------------
 # PASSWORD VALIDATION
 # -----------------------------------
@@ -191,9 +192,9 @@ EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 # -----------------------------------
 # SECURITY SETTINGS
 # -----------------------------------
-CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = False
 
-SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = False
 
 
 # -----------------------------------
