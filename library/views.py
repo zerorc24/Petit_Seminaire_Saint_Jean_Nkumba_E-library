@@ -49,13 +49,14 @@ def register(request):
             password=password
         )
 
+        user.is_active = True
+
         if hasattr(user, "status"):
             user.status = "pending"
 
         if hasattr(user, "is_approved"):
             user.is_approved = False
 
-        user.is_active = True
         user.save()
 
         messages.success(request, "Account created. Wait for admin approval.")
@@ -109,7 +110,7 @@ def send_code_page(request):
 
 
 # =========================================================
-# 📩 SEND VERIFICATION CODE (FIXED + SAFE)
+# 📩 SEND OTP (FIXED)
 # =========================================================
 def send_verification_code(request):
 
@@ -128,13 +129,12 @@ def send_verification_code(request):
 
     try:
         send_mail(
-            "Login Verification Code",
-            f"Your OTP code is: {code}",
-            settings.EMAIL_HOST_USER,
-            [user.email],
+            subject="Login Verification Code",
+            message=f"Your OTP code is: {code}",
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=[user.email],
             fail_silently=False
         )
-
     except Exception as e:
         print("EMAIL ERROR:", str(e))
         messages.error(request, "Email service not available")
@@ -242,9 +242,7 @@ def admin_dashboard(request):
     users = User.objects.all()
     books = Book.objects.all()
 
-    pending = []
-    approved = []
-    rejected = []
+    pending, approved, rejected = [], [], []
 
     for u in users:
         status = getattr(u, "status", None)
