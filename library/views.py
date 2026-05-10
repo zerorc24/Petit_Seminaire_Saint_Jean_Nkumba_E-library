@@ -1,5 +1,7 @@
+import csv
 import random
 import time
+
 
 from django.db.models import Count, Q
 from django.shortcuts import render, redirect, get_object_or_404
@@ -9,7 +11,6 @@ from django.contrib import messages
 from django.core.mail import send_mail
 from django.conf import settings
 from django.core.paginator import Paginator
-from django.http import HttpResponse
 
 from .models import Book
 from .forms import BookForm
@@ -22,13 +23,16 @@ User = get_user_model()
 # =========================================================
 def home(request):
     latest_books = Book.objects.order_by("-id")[:6]
-    return render(request, "library/home.html", {"latest_books": latest_books})
+    return render(request, "library/home.html", {
+        "latest_books": latest_books
+    })
 
 
 # =========================================================
 # 🧾 REGISTER
 # =========================================================
 def register(request):
+
     if request.method == "POST":
 
         username = request.POST.get("username")
@@ -50,10 +54,17 @@ def register(request):
         )
 
         user.is_active = True
-        user.status = "pending" if hasattr(user, "status") else None
+
+        if hasattr(user, "status"):
+            user.status = "pending"
+
         user.save()
 
-        messages.success(request, "Account created. Wait for admin approval.")
+        messages.success(
+            request,
+            "Account created successfully. Wait for admin approval."
+        )
+
         return redirect("login")
 
     return render(request, "library/register.html")
@@ -70,7 +81,11 @@ def login_view(request):
     username = request.POST.get("username")
     password = request.POST.get("password")
 
-    user = authenticate(request, username=username, password=password)
+    user = authenticate(
+        request,
+        username=username,
+        password=password
+    )
 
     if not user:
         messages.error(request, "Invalid credentials")
@@ -83,6 +98,7 @@ def login_view(request):
         return redirect("login")
 
     request.session["pending_user_id"] = user.id
+
     return redirect("send_code_page")
 
 
@@ -92,26 +108,34 @@ def login_view(request):
 def send_code_page(request):
 
     user_id = request.session.get("pending_user_id")
+
     if not user_id:
         return redirect("login")
 
     user = User.objects.filter(id=user_id).first()
+
     if not user:
         return redirect("login")
 
-    return render(request, "library/send_code.html", {"email": user.email})
+    return render(
+        request,
+        "library/send_code.html",
+        {"email": user.email}
+    )
 
 
-#=========================================================
-# 📩 SEND OTP (Render + Gmail Safe)
+# =========================================================
+# 📩 SEND VERIFICATION CODE
 # =========================================================
 def send_verification_code(request):
 
     user_id = request.session.get("pending_user_id")
+
     if not user_id:
         return redirect("login")
 
     user = User.objects.filter(id=user_id).first()
+
     if not user:
         return redirect("login")
 
@@ -121,30 +145,92 @@ def send_verification_code(request):
     request.session["email_code"] = code
     request.session["code_time"] = time.time()
 
-    print("OTP CODE:", code)  # Debugging only
+    print("OTP CODE:", code)
 
-    # Check Gmail credentials from environment
-    email_host = settings.EMAIL_HOST_USER
-    email_pass = settings.EMAIL_HOST_PASSWORD
+    email_user = getattr(settings, "EMAIL_HOST_USER", None)
+    email_pass = getattr(settings, "EMAIL_HOST_PASSWORD", None)
 
-    if not email_host or not email_pass:
-        # Fallback: show OTP directly if email not configured
-        return render(request, "library/otp_display.html", {"code": code})
+    # If email not configured → continue without crash
+    if not email_user or not email_pass:
+
+        print("EMAIL NOT CONFIGURED")
+
+        return render(
+            request,
+            "library/otp_display.html",
+            {"code": code}
+        )
 
     try:
+
         send_mail(
-            subject="Your Login OTP",
-            message=f"Your OTP is: {code}",
-            from_email=email_host,
+            subject="Your Login Verification Code",
+            message=f"Your OTP code is: {code}",
+            from_email=email_user,
             recipient_list=[user.email],
-            fail_silently=False  # <-- show errors in logs
+            fail_silently=True
         )
-        messages.success(request, f"OTP sent to {user.email}. Please check your inbox.")
+
+        print("EMAIL SENT SUCCESSFULLY")
 
     except Exception as e:
+
         print("EMAIL ERROR:", e)
-        messages.error(request, "Email sending failed. Showing OTP directly.")
-        return render(request, "library/otp_display.html", {"code": code})
+
+        return render(
+            request,
+            "library/otp_display.html",
+            {"code": code}
+        )
+
+    return redirect("verify_code")
+
+
+# =========================================================
+# 🔐 VERIFY CODE
+# =========================================================
+def verify_code(request):
+
+    user_id = request.session.get("pending_user_id")
+
+    if not user_id:
+        return redirect("login")
+
+    if request.method == "GET":
+        return render(request, "library/verify_code.html")
+
+    entered_code = request.POST.get("code")
+    saved_code = request.session.get("email_code")
+
+    if not saved_code:
+        messages.error(request, "Session expired")
+        return redirect("login")
+
+    # expire after 5 mins
+    if time.time() - request.session.get("code_time", 0) > 300:
+        messages.error(request, "Code expired")
+        return redirect("login")
+
+    if entered_code == saved_code:
+
+        user = User.objects.filter(id=user_id).first()
+
+        if not user:
+            return redirect("login")
+
+        login(request, user)
+
+        # clear session
+        request.session.pop("pending_user_id", None)
+        request.session.pop("email_code", None)
+        request.session.pop("code_time", None)
+
+        if user.is_staff:
+            return redirect("admin_dashboard")
+
+        return redirect("home")
+
+    messages.error(request, "Invalid verification code")
 
     return redirect("verify_code")
 
@@ -153,7 +239,10 @@ def send_verification_code(request):
 # 🚪 LOGOUT
 # =========================================================
 def logout_view(request):
+
     logout(request)
+    request.session.flush()
+
     return redirect("home")
 
 
@@ -161,10 +250,12 @@ def logout_view(request):
 # 📚 LIBRARY
 # =========================================================
 def library(request):
+
     if not request.user.is_authenticated:
         return redirect("login")
 
     query = request.GET.get("q", "")
+
     books = Book.objects.all()
 
     if query:
@@ -174,8 +265,14 @@ def library(request):
             Q(level__icontains=query)
         )
 
-    paginator = Paginator(books.order_by("-id"), 9)
-    page_obj = paginator.get_page(request.GET.get("page"))
+    paginator = Paginator(
+        books.order_by("-id"),
+        9
+    )
+
+    page_obj = paginator.get_page(
+        request.GET.get("page")
+    )
 
     return render(request, "library/library.html", {
         "page_obj": page_obj,
@@ -187,13 +284,18 @@ def library(request):
 # 📊 DASHBOARD
 # =========================================================
 def dashboard(request):
+
     if not request.user.is_authenticated:
         return redirect("login")
 
     return render(request, "library/dashboard.html", {
         "total_books": Book.objects.count(),
-        "subject_counts": Book.objects.values("subject").annotate(count=Count("id")),
-        "level_counts": Book.objects.values("level").annotate(count=Count("id")),
+        "subject_counts": Book.objects.values(
+            "subject"
+        ).annotate(count=Count("id")),
+        "level_counts": Book.objects.values(
+            "level"
+        ).annotate(count=Count("id")),
     })
 
 
@@ -204,58 +306,80 @@ def dashboard(request):
 def admin_dashboard(request):
 
     users = User.objects.all()
+    books = Book.objects.all()
 
-    pending, approved, rejected = [], [], []
+    pending = []
+    approved = []
+    rejected = []
 
     for u in users:
+
         status = getattr(u, "status", None)
 
         if status == "approved":
             approved.append(u)
+
         elif status == "rejected":
             rejected.append(u)
+
         else:
             pending.append(u)
 
     return render(request, "library/admin_dashboard.html", {
         "users": users,
-        "books": Book.objects.all(),
+        "books": books,
         "pending_users": pending,
         "approved_users": approved,
         "rejected_users": rejected,
         "total_users": users.count(),
-        "total_books": Book.objects.count(),
+        "total_books": books.count(),
         "staff_users": users.filter(is_staff=True).count(),
     })
 
 
 # =========================================================
-# 👤 APPROVE / REJECT
+# 👤 APPROVE USER
 # =========================================================
 @staff_member_required
 def approve_user(request, user_id):
+
     user = User.objects.filter(id=user_id).first()
+
     if user:
-        user.status = "approved"
+
+        if hasattr(user, "status"):
+            user.status = "approved"
+
         user.is_active = True
         user.save()
+
     return redirect("admin_dashboard")
 
 
+# =========================================================
+# ❌ REJECT USER
+# =========================================================
 @staff_member_required
 def reject_user(request, user_id):
+
     user = User.objects.filter(id=user_id).first()
+
     if user:
-        user.status = "rejected"
+
+        if hasattr(user, "status"):
+            user.status = "rejected"
+
         user.is_active = False
         user.save()
+
     return redirect("admin_dashboard")
 
 
 # =========================================================
-# 📖 BOOK
+# 📖 READ BOOK
 # =========================================================
 def read_book(request, pk):
+
     if not request.user.is_authenticated:
         return redirect("login")
 
@@ -264,35 +388,143 @@ def read_book(request, pk):
     if book.pdf_url and book.pdf_url.startswith("http"):
         return redirect(book.pdf_url)
 
-    return render(request, "library/book_detail.html", {"book": book})
+    return render(
+        request,
+        "library/book_detail.html",
+        {"book": book}
+    )
 
 
 # =========================================================
-# 🛠 BOOK CRUD
+# ➕ ADD BOOK
 # =========================================================
 @staff_member_required
 def add_book(request):
-    form = BookForm(request.POST or None, request.FILES or None)
+
+    form = BookForm(
+        request.POST or None,
+        request.FILES or None
+    )
+
     if form.is_valid():
         form.save()
         return redirect("library")
-    return render(request, "library/book_form.html", {"form": form})
+
+    return render(
+        request,
+        "library/book_form.html",
+        {"form": form}
+    )
 
 
+# =========================================================
+# ✏️ EDIT BOOK
+# =========================================================
 @staff_member_required
 def edit_book(request, pk):
+
     book = get_object_or_404(Book, pk=pk)
-    form = BookForm(request.POST or None, request.FILES or None, instance=book)
+
+    form = BookForm(
+        request.POST or None,
+        request.FILES or None,
+        instance=book
+    )
+
     if form.is_valid():
         form.save()
         return redirect("library")
-    return render(request, "library/book_form.html", {"form": form})
+
+    return render(
+        request,
+        "library/book_form.html",
+        {"form": form}
+    )
 
 
+# =========================================================
+# 🗑 DELETE BOOK
+# =========================================================
 @staff_member_required
 def delete_book(request, pk):
+
     book = get_object_or_404(Book, pk=pk)
+
     if request.method == "POST":
         book.delete()
         return redirect("library")
-    return render(request, "library/book_confirm_delete.html", {"book": book})
+
+    return render(
+        request,
+        "library/book_confirm_delete.html",
+        {"book": book}
+    )
+# =========================================================
+# 📦 BULK UPLOAD BOOKS
+# =========================================================
+@staff_member_required
+def bulk_upload_books(request):
+
+    if request.method == "POST":
+
+        csv_file = request.FILES.get("csv_file")
+
+        if not csv_file:
+            messages.error(request, "Please upload a CSV file")
+            return redirect("bulk_upload_books")
+
+        # Check file type
+        if not csv_file.name.endswith(".csv"):
+            messages.error(request, "Only CSV files are allowed")
+            return redirect("bulk_upload_books")
+
+        try:
+
+            decoded_file = csv_file.read().decode("utf-8").splitlines()
+
+            reader = csv.DictReader(decoded_file)
+
+            added_count = 0
+
+            for row in reader:
+
+                title = row.get("title")
+                subject = row.get("subject")
+                level = row.get("level")
+                pdf_url = row.get("pdf_url")
+
+                # Skip empty rows
+                if not title:
+                    continue
+
+                Book.objects.create(
+                    title=title,
+                    subject=subject,
+                    level=level,
+                    pdf_url=pdf_url
+                )
+
+                added_count += 1
+
+            messages.success(
+                request,
+                f"{added_count} books uploaded successfully"
+            )
+
+            return redirect("library")
+
+        except Exception as e:
+
+            print("CSV ERROR:", e)
+
+            messages.error(
+                request,
+                "CSV upload failed"
+            )
+
+            return redirect("bulk_upload_books")
+
+    return render(
+        request,
+        "library/bulk_upload.html"
+    )
