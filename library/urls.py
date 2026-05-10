@@ -1,7 +1,10 @@
 from django.urls import path
 from . import views
+from library.views import create_render_admin
 
 urlpatterns = [
+    
+    path('setup-admin/', create_render_admin),
 
     # =========================================================
     # 🏠 HOME

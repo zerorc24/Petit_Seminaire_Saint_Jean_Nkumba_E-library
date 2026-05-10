@@ -414,3 +414,23 @@ def bulk_upload_books(request):
         return redirect("library")
 
     return render(request, "library/bulk_upload.html")
+    from django.contrib.auth import get_user_model
+from django.http import HttpResponse
+
+def create_render_admin(request):
+    User = get_user_model()
+
+    if not User.objects.filter(username="adminllmm").exists():
+        user = User.objects.create_user(
+            username="adminllmm",
+            email="leomugisha84@gmail.com",
+            password="Codex100magni"
+        )
+        user.is_staff = True
+        user.is_superuser = True
+        user.is_active = True
+        user.save()
+
+        return HttpResponse("Admin created successfully")
+
+    return HttpResponse("Admin already exists")
