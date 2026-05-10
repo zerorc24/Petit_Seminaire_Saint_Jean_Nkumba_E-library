@@ -111,7 +111,7 @@ def send_code_page(request):
 
 
 # =========================================================
-# 📩 SEND OTP (100% SAFE — NO CRASH)
+# 📩 SEND OTP (100% SAFE - NEVER CRASH)
 # =========================================================
 def send_verification_code(request):
 
@@ -123,7 +123,7 @@ def send_verification_code(request):
     if not user:
         return redirect("login")
 
-    # Generate OTP
+    # generate OTP
     code = str(random.randint(100000, 999999))
 
     request.session["email_code"] = code
@@ -131,20 +131,29 @@ def send_verification_code(request):
 
     print("OTP CODE:", code)
 
-    # ---------------- SAFE EMAIL HANDLING ----------------
+    email_user = getattr(settings, "EMAIL_HOST_USER", None)
+
+    # ❗ SAFE MODE: if email not configured → show OTP instead of crashing
+    if not email_user:
+        return HttpResponse(f"""
+            <h2>EMAIL NOT CONFIGURED</h2>
+            <p><b>Your OTP:</b> {code}</p>
+            <p>Use this code to continue login.</p>
+        """)
+
     try:
         send_mail(
             subject="Login Verification Code",
             message=f"Your OTP code is: {code}",
-            from_email=getattr(settings, "EMAIL_HOST_USER", None),
+            from_email=email_user,
             recipient_list=[user.email],
-            fail_silently=True,   # IMPORTANT: prevents 500 error
+            fail_silently=True  # prevents 500 crash
         )
 
     except Exception as e:
         print("EMAIL ERROR:", e)
+        return HttpResponse(f"<h3>Email failed</h3><p>OTP: {code}</p>")
 
-    # Always continue (NO crash even if email fails)
     return redirect("verify_code")
 
 
@@ -245,7 +254,6 @@ def dashboard(request):
 def admin_dashboard(request):
 
     users = User.objects.all()
-    books = Book.objects.all()
 
     pending, approved, rejected = [], [], []
 
@@ -261,12 +269,12 @@ def admin_dashboard(request):
 
     return render(request, "library/admin_dashboard.html", {
         "users": users,
-        "books": books,
+        "books": Book.objects.all(),
         "pending_users": pending,
         "approved_users": approved,
         "rejected_users": rejected,
         "total_users": users.count(),
-        "total_books": books.count(),
+        "total_books": Book.objects.count(),
         "staff_users": users.filter(is_staff=True).count(),
     })
 
@@ -278,17 +286,13 @@ def admin_dashboard(request):
 def approve_user(request, user_id):
 
     user = User.objects.filter(id=user_id).first()
-    if not user:
-        return redirect("admin_dashboard")
-
-    if hasattr(user, "status"):
-        user.status = "approved"
-
-    if hasattr(user, "is_approved"):
-        user.is_approved = True
-
-    user.is_active = True
-    user.save()
+    if user:
+        if hasattr(user, "status"):
+            user.status = "approved"
+        if hasattr(user, "is_approved"):
+            user.is_approved = True
+        user.is_active = True
+        user.save()
 
     return redirect("admin_dashboard")
 
@@ -300,17 +304,13 @@ def approve_user(request, user_id):
 def reject_user(request, user_id):
 
     user = User.objects.filter(id=user_id).first()
-    if not user:
-        return redirect("admin_dashboard")
-
-    if hasattr(user, "status"):
-        user.status = "rejected"
-
-    if hasattr(user, "is_approved"):
-        user.is_approved = False
-
-    user.is_active = False
-    user.save()
+    if user:
+        if hasattr(user, "status"):
+            user.status = "rejected"
+        if hasattr(user, "is_approved"):
+            user.is_approved = False
+        user.is_active = False
+        user.save()
 
     return redirect("admin_dashboard")
 
