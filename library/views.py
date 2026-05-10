@@ -26,7 +26,7 @@ def home(request):
 
 
 # =========================================================
-# 🧾 REGISTER (SAFE)
+# 🧾 REGISTER
 # =========================================================
 def register(request):
     if request.method == "POST":
@@ -49,7 +49,6 @@ def register(request):
             password=password
         )
 
-        # SAFE DEFAULTS (ONLY IF FIELD EXISTS)
         if hasattr(user, "status"):
             user.status = "pending"
 
@@ -82,7 +81,6 @@ def login_view(request):
         messages.error(request, "Invalid credentials")
         return redirect("login")
 
-    # SAFE STATUS CHECK
     status = getattr(user, "status", "pending")
 
     if not user.is_staff and status != "approved":
@@ -94,7 +92,7 @@ def login_view(request):
 
 
 # =========================================================
-# 📧 OTP PAGE
+# 📧 SEND CODE PAGE
 # =========================================================
 def send_code_page(request):
     user_id = request.session.get("pending_user_id")
@@ -111,7 +109,7 @@ def send_code_page(request):
 
 
 # =========================================================
-# 📩 SEND OTP (SAFE EMAIL)
+# 📩 SEND VERIFICATION CODE (FIXED + SAFE)
 # =========================================================
 def send_verification_code(request):
 
@@ -134,8 +132,11 @@ def send_verification_code(request):
             f"Your OTP code is: {code}",
             settings.EMAIL_HOST_USER,
             [user.email],
+            fail_silently=False
         )
-    except Exception:
+
+    except Exception as e:
+        print("EMAIL ERROR:", str(e))
         messages.error(request, "Email service not available")
         return redirect("login")
 
@@ -143,7 +144,7 @@ def send_verification_code(request):
 
 
 # =========================================================
-# 🔐 VERIFY OTP
+# 🔐 VERIFY CODE
 # =========================================================
 def verify_code(request):
 
@@ -173,7 +174,6 @@ def verify_code(request):
 
         login(request, user)
 
-        # CLEAN SESSION
         request.session.pop("pending_user_id", None)
         request.session.pop("email_code", None)
         request.session.pop("code_time", None)
@@ -234,11 +234,7 @@ def dashboard(request):
 
 
 # =========================================================
-# 👨‍💼 ADMIN DASHBOARD (PRO + SAFE)
-# =========================================================
-@staff_member_required
-# =========================================================
-# 👨‍💼 ADMIN DASHBOARD (PRO LEVEL 2 - CRASH PROOF)
+# 👨‍💼 ADMIN DASHBOARD
 # =========================================================
 @staff_member_required
 def admin_dashboard(request):
@@ -251,27 +247,21 @@ def admin_dashboard(request):
     rejected = []
 
     for u in users:
-
-        # SAFE STATUS SYSTEM (NEVER CRASHES EVEN IF FIELD DOES NOT EXIST)
         status = getattr(u, "status", None)
 
         if status == "approved":
             approved.append(u)
-
         elif status == "rejected":
             rejected.append(u)
-
         else:
             pending.append(u)
 
     return render(request, "library/admin_dashboard.html", {
         "users": users,
         "books": books,
-
         "pending_users": pending,
         "approved_users": approved,
         "rejected_users": rejected,
-
         "total_users": users.count(),
         "total_books": books.count(),
         "staff_users": users.filter(is_staff=True).count(),
@@ -279,7 +269,7 @@ def admin_dashboard(request):
 
 
 # =========================================================
-# 👤 APPROVE USER (ULTRA SAFE)
+# 👤 APPROVE USER
 # =========================================================
 @staff_member_required
 def approve_user(request, user_id):
@@ -288,14 +278,12 @@ def approve_user(request, user_id):
     if not user:
         return redirect("admin_dashboard")
 
-    # SAFE FIELD UPDATE (ONLY IF EXISTS)
     if hasattr(user, "status"):
         user.status = "approved"
 
     if hasattr(user, "is_approved"):
         user.is_approved = True
 
-    # ALWAYS SAFE
     user.is_active = True
     user.save()
 
@@ -303,7 +291,7 @@ def approve_user(request, user_id):
 
 
 # =========================================================
-# ❌ REJECT USER (ULTRA SAFE)
+# ❌ REJECT USER
 # =========================================================
 @staff_member_required
 def reject_user(request, user_id):
@@ -318,24 +306,11 @@ def reject_user(request, user_id):
     if hasattr(user, "is_approved"):
         user.is_approved = False
 
-    # SAFER SECURITY BEHAVIOR
     user.is_active = False
     user.save()
 
     return redirect("admin_dashboard")
 
-
-# =========================================================
-# 🧹 RESET USERS (SAFE + NON-DESTRUCTIVE)
-# =========================================================
-@staff_member_required
-def reset_users(request):
-
-    # ONLY RUN IF FIELD EXISTS IN DATABASE MODEL
-    if "status" in [f.name for f in User._meta.fields]:
-        User.objects.filter(status="approved").update(status="pending")
-
-    return redirect("admin_dashboard")
 
 # =========================================================
 # 📖 READ BOOK
@@ -381,72 +356,3 @@ def delete_book(request, pk):
         book.delete()
         return redirect("library")
     return render(request, "library/book_confirm_delete.html", {"book": book})
-
-
-# =========================================================
-# 📦 BULK UPLOAD
-# =========================================================
-@staff_member_required
-def bulk_upload_books(request):
-    if request.method == "POST":
-        csv_file = request.FILES.get("csv_file")
-
-        if not csv_file:
-            messages.error(request, "Upload CSV file")
-            return redirect("bulk_upload_books")
-
-        try:
-            decoded = csv_file.read().decode("utf-8").splitlines()
-            reader = csv.DictReader(decoded)
-
-            for row in reader:
-                Book.objects.create(
-                    title=row.get("title", ""),
-                    subject=row.get("subject", ""),
-                    level=row.get("level", ""),
-                    pdf_url=row.get("pdf_url", "")
-                )
-
-        except Exception:
-            messages.error(request, "Invalid CSV format")
-            return redirect("bulk_upload_books")
-
-        return redirect("library")
-
-    return render(request, "library/bulk_upload.html")
-from django.contrib.auth import get_user_model
-from django.http import HttpResponse
-
-
-def create_render_admin(request):
-    User = get_user_model()
-
-    # 1. Try to find user by email first (most reliable in your case)
-    user = User.objects.filter(email="leomugisha84@gmail.com").first()
-
-    # 2. If not found, try username
-    if not user:
-        user = User.objects.filter(username="adminllmm").first()
-
-    # 3. If still not found → create new user safely
-    if not user:
-        user = User.objects.create_user(
-            username="adminllmm",
-            email="leomugisha84@gmail.com",
-            password="Codex100magni"
-        )
-
-    # 4. Upgrade to admin safely (no duplicates, no crashes)
-    user.username = "adminllmm"
-    user.email = "leomugisha84@gmail.com"
-    user.set_password("Codex100magni")
-    user.is_staff = True
-    user.is_superuser = True
-    user.is_active = True
-
-    if hasattr(user, "is_approved"):
-        user.is_approved = True
-
-    user.save()
-
-    return HttpResponse("Admin is ready and secured")
