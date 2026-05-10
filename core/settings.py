@@ -2,18 +2,18 @@ from pathlib import Path
 import os
 import dj_database_url
 
-# -----------------------------------
-# BASE DIRECTORY
-# -----------------------------------
+# -------------------------------
+# BASE DIR
+# -------------------------------
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# -----------------------------------
+# -------------------------------
 # SECURITY
-# -----------------------------------
+# -------------------------------
 SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-secret-key')
 
-DEBUG = True
+DEBUG = os.environ.get("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = [
     "petit-seminaire-saint-jean-nkumba-e.onrender.com",
@@ -22,9 +22,9 @@ ALLOWED_HOSTS = [
 ]
 
 
-# -----------------------------------
-# INSTALLED APPS
-# -----------------------------------
+# -------------------------------
+# APPLICATIONS
+# -------------------------------
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -34,13 +34,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'library',
-    'pwa',
 ]
 
 
-# -----------------------------------
+# -------------------------------
 # MIDDLEWARE
-# -----------------------------------
+# -------------------------------
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -54,9 +53,9 @@ MIDDLEWARE = [
 ]
 
 
-# -----------------------------------
+# -------------------------------
 # AUTH SYSTEM
-# -----------------------------------
+# -------------------------------
 AUTH_USER_MODEL = 'library.CustomUser'
 
 AUTHENTICATION_BACKENDS = [
@@ -64,23 +63,20 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 LOGIN_URL = "login"
-
 LOGIN_REDIRECT_URL = "dashboard"
-
 LOGOUT_REDIRECT_URL = "home"
 
 
-# -----------------------------------
+# -------------------------------
 # URL CONFIG
-# -----------------------------------
+# -------------------------------
 ROOT_URLCONF = 'core.urls'
-
 WSGI_APPLICATION = 'core.wsgi.application'
 
 
-# -----------------------------------
+# -------------------------------
 # TEMPLATES
-# -----------------------------------
+# -------------------------------
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -100,9 +96,9 @@ TEMPLATES = [
 ]
 
 
-# -----------------------------------
+# -------------------------------
 # DATABASE
-# -----------------------------------
+# -------------------------------
 if os.environ.get("DATABASE_URL"):
     DATABASES = {
         'default': dj_database_url.config(
@@ -120,9 +116,9 @@ else:
     }
 
 
-# -----------------------------------
+# -------------------------------
 # PASSWORD VALIDATION
-# -----------------------------------
+# -------------------------------
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'
@@ -139,9 +135,9 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# -----------------------------------
+# -------------------------------
 # INTERNATIONALIZATION
-# -----------------------------------
+# -------------------------------
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
@@ -151,9 +147,9 @@ USE_I18N = True
 USE_TZ = True
 
 
-# -----------------------------------
+# -------------------------------
 # STATIC FILES
-# -----------------------------------
+# -------------------------------
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
@@ -165,17 +161,17 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
-# -----------------------------------
+# -------------------------------
 # MEDIA FILES
-# -----------------------------------
+# -------------------------------
 MEDIA_URL = '/media/'
 
 MEDIA_ROOT = BASE_DIR / 'media'
 
 
-# -----------------------------------
+# -------------------------------
 # EMAIL SETTINGS
-# -----------------------------------
+# -------------------------------
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 EMAIL_HOST = 'smtp.gmail.com'
@@ -189,17 +185,17 @@ EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 
 
-# -----------------------------------
+# -------------------------------
 # SECURITY SETTINGS
-# -----------------------------------
-CSRF_COOKIE_SECURE = False
+# -------------------------------
+CSRF_COOKIE_SECURE = True
 
-SESSION_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = True
 
 
-# -----------------------------------
+# -------------------------------
 # CSRF TRUSTED ORIGINS
-# -----------------------------------
+# -------------------------------
 CSRF_TRUSTED_ORIGINS = [
     "https://petit-seminaire-saint-jean-nkumba-e.onrender.com",
     "http://127.0.0.1:8000",
@@ -207,51 +203,7 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 
-# -----------------------------------
+# -------------------------------
 # DEFAULT AUTO FIELD
-# -----------------------------------
+# -------------------------------
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-
-# -----------------------------------
-# PWA SETTINGS
-# -----------------------------------
-PWA_APP_NAME = 'Petit Seminaire'
-
-PWA_APP_DESCRIPTION = "Digital Library System"
-
-PWA_APP_THEME_COLOR = '#000000'
-
-PWA_APP_BACKGROUND_COLOR = '#ffffff'
-
-PWA_APP_DISPLAY = 'standalone'
-
-PWA_APP_SCOPE = '/'
-
-PWA_APP_ORIENTATION = 'portrait'
-
-PWA_APP_START_URL = '/'
-
-PWA_APP_STATUS_BAR_COLOR = 'default'
-
-PWA_APP_ICONS = [
-    {
-        'src': '/static/images/icon-192.png',
-        'sizes': '192x192'
-    },
-    {
-        'src': '/static/images/icon-512.png',
-        'sizes': '512x512'
-    }
-]
-
-PWA_APP_SPLASH_SCREEN = [
-    {
-        'src': '/static/images/icon-512.png',
-        'media': '(device-width: 320px) and (device-height: 568px)'
-    }
-]
-
-PWA_APP_DIR = 'ltr'
-
-PWA_APP_LANG = 'en-US'
