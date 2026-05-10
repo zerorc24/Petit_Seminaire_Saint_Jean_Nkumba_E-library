@@ -2,7 +2,6 @@ import csv
 import random
 import time
 
-
 from django.db.models import Count, Q
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout, get_user_model
@@ -22,7 +21,9 @@ User = get_user_model()
 # 🏠 HOME
 # =========================================================
 def home(request):
+
     latest_books = Book.objects.order_by("-id")[:6]
+
     return render(request, "library/home.html", {
         "latest_books": latest_books
     })
@@ -103,6 +104,30 @@ def login_view(request):
 
 
 # =========================================================
+# 📧 SEND CODE PAGE
+# =========================================================
+def send_code_page(request):
+
+    user_id = request.session.get("pending_user_id")
+
+    if not user_id:
+        return redirect("login")
+
+    user = User.objects.filter(id=user_id).first()
+
+    if not user:
+        return redirect("login")
+
+    return render(
+        request,
+        "library/send_code.html",
+        {
+            "email": user.email
+        }
+    )
+
+
+# =========================================================
 # 📩 SEND VERIFICATION CODE
 # =========================================================
 def send_verification_code(request):
@@ -120,7 +145,7 @@ def send_verification_code(request):
     # Generate OTP
     code = str(random.randint(100000, 999999))
 
-    # Save OTP in session
+    # Save OTP
     request.session["email_code"] = code
     request.session["code_time"] = time.time()
 
@@ -128,7 +153,6 @@ def send_verification_code(request):
 
     try:
 
-        # ONLY try email if credentials exist
         if settings.EMAIL_HOST_USER and settings.EMAIL_HOST_PASSWORD:
 
             send_mail(
@@ -145,9 +169,8 @@ def send_verification_code(request):
 
         print("EMAIL ERROR:", e)
 
-    # IMPORTANT:
-    # Never crash
     return redirect("verify_code")
+
 
 # =========================================================
 # 🔐 VERIFY CODE
@@ -160,7 +183,10 @@ def verify_code(request):
         return redirect("login")
 
     if request.method == "GET":
-        return render(request, "library/verify_code.html")
+
+        return render(request, "library/verify_code.html", {
+            "debug_code": request.session.get("email_code")
+        })
 
     entered_code = request.POST.get("code")
     saved_code = request.session.get("email_code")
@@ -169,7 +195,7 @@ def verify_code(request):
         messages.error(request, "Session expired")
         return redirect("login")
 
-    # expire after 5 mins
+    # 5 MINUTES EXPIRATION
     if time.time() - request.session.get("code_time", 0) > 300:
         messages.error(request, "Code expired")
         return redirect("login")
@@ -183,7 +209,7 @@ def verify_code(request):
 
         login(request, user)
 
-        # clear session
+        # Clear session
         request.session.pop("pending_user_id", None)
         request.session.pop("email_code", None)
         request.session.pop("code_time", None)
@@ -422,6 +448,8 @@ def delete_book(request, pk):
         "library/book_confirm_delete.html",
         {"book": book}
     )
+
+
 # =========================================================
 # 📦 BULK UPLOAD BOOKS
 # =========================================================
@@ -436,7 +464,6 @@ def bulk_upload_books(request):
             messages.error(request, "Please upload a CSV file")
             return redirect("bulk_upload_books")
 
-        # Check file type
         if not csv_file.name.endswith(".csv"):
             messages.error(request, "Only CSV files are allowed")
             return redirect("bulk_upload_books")
@@ -456,7 +483,6 @@ def bulk_upload_books(request):
                 level = row.get("level")
                 pdf_url = row.get("pdf_url")
 
-                # Skip empty rows
                 if not title:
                     continue
 
