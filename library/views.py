@@ -102,8 +102,8 @@ def send_code_page(request):
     return render(request, "library/send_code.html", {"email": user.email})
 
 
-# =========================================================
-# 📩 SEND OTP (100% SAFE)
+#=========================================================
+# 📩 SEND OTP (Render + Gmail Safe)
 # =========================================================
 def send_verification_code(request):
 
@@ -121,37 +121,33 @@ def send_verification_code(request):
     request.session["email_code"] = code
     request.session["code_time"] = time.time()
 
-    print("OTP CODE:", code)
+    print("OTP CODE:", code)  # Debugging only
 
-    # 🚨 NEVER try email on Render unless configured properly
-    email_host = getattr(settings, "EMAIL_HOST_USER", None)
-    email_pass = getattr(settings, "EMAIL_HOST_PASSWORD", None)
+    # Check Gmail credentials from environment
+    email_host = settings.EMAIL_HOST_USER
+    email_pass = settings.EMAIL_HOST_PASSWORD
 
-    # SAFE MODE: if email not fully configured → just show OTP page
     if not email_host or not email_pass:
-        return render(request, "library/otp_display.html", {
-            "code": code
-        })
+        # Fallback: show OTP directly if email not configured
+        return render(request, "library/otp_display.html", {"code": code})
 
-    # Try email ONLY if configured
     try:
         send_mail(
             subject="Your Login OTP",
             message=f"Your OTP is: {code}",
             from_email=email_host,
             recipient_list=[user.email],
-            fail_silently=True
+            fail_silently=False  # <-- show errors in logs
         )
+        messages.success(request, f"OTP sent to {user.email}. Please check your inbox.")
 
     except Exception as e:
         print("EMAIL ERROR:", e)
-
-        # fallback instead of crashing
-        return render(request, "library/otp_display.html", {
-            "code": code
-        })
+        messages.error(request, "Email sending failed. Showing OTP directly.")
+        return render(request, "library/otp_display.html", {"code": code})
 
     return redirect("verify_code")
+
 
 # =========================================================
 # 🚪 LOGOUT
