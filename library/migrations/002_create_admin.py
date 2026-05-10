@@ -5,16 +5,18 @@ from django.contrib.auth import get_user_model
 def create_admin(apps, schema_editor):
     User = get_user_model()
 
+    # IMPORTANT: check BOTH username AND email safely
     if not User.objects.filter(username="adminllmm").exists():
-        user = User.objects.create_user(
-            username="adminllmm",
-            email="leomugisha84@gmail.com",
-            password="Codex100magni"
-        )
-        user.is_staff = True
-        user.is_superuser = True
-        user.is_active = True
-        user.save()
+        if not User.objects.filter(email="leomugisha84@gmail.com").exists():
+            user = User.objects.create_user(
+                username="adminllmm",
+                email="leomugisha84@gmail.com",
+                password="Codex100magni"
+            )
+            user.is_staff = True
+            user.is_superuser = True
+            user.is_active = True
+            user.save()
 
 
 class Migration(migrations.Migration):
