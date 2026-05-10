@@ -13,7 +13,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # -------------------------------
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
-DEBUG = True  # ALWAYS False on Render (set True only locally)
+DEBUG = False  # production safe (set True only locally)
 
 ALLOWED_HOSTS = [
     "petit-seminaire-saint-jean-nkumba-e.onrender.com",
@@ -94,13 +94,12 @@ TEMPLATES = [
 
 
 # -------------------------------
-# DATABASE
+# DATABASE (FIXED SSL ISSUE)
 # -------------------------------
 DATABASES = {
     'default': dj_database_url.config(
         default=os.environ.get("DATABASE_URL"),
-        conn_max_age=600,
-        ssl_require=True
+        conn_max_age=600
     )
 }
 
@@ -143,7 +142,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 
 # -------------------------------
-# EMAIL (PRODUCTION SAFE)
+# EMAIL (SAFE FOR PRODUCTION)
 # -------------------------------
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
