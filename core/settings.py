@@ -5,23 +5,25 @@ import dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# -------------------------------
+# =========================================================
 # SECURITY
-# -------------------------------
-SECRET_KEY = os.environ.get("SECRET_KEY")
+# =========================================================
+SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key")
 
+# ⚠️ IMPORTANT:
+# Debug must be False on Render
 DEBUG = False
 
 ALLOWED_HOSTS = [
     "petit-seminaire-saint-jean-nkumba-e.onrender.com",
-    "127.0.0.1",
     "localhost",
+    "127.0.0.1",
 ]
 
 
-# -------------------------------
+# =========================================================
 # APPS
-# -------------------------------
+# =========================================================
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -34,9 +36,9 @@ INSTALLED_APPS = [
 ]
 
 
-# -------------------------------
+# =========================================================
 # MIDDLEWARE
-# -------------------------------
+# =========================================================
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -50,9 +52,9 @@ MIDDLEWARE = [
 ]
 
 
-# -------------------------------
+# =========================================================
 # AUTH
-# -------------------------------
+# =========================================================
 AUTH_USER_MODEL = 'library.CustomUser'
 
 AUTHENTICATION_BACKENDS = [
@@ -64,16 +66,16 @@ LOGIN_REDIRECT_URL = "dashboard"
 LOGOUT_REDIRECT_URL = "home"
 
 
-# -------------------------------
-# URLS
-# -------------------------------
+# =========================================================
+# URL CONFIG
+# =========================================================
 ROOT_URLCONF = 'core.urls'
 WSGI_APPLICATION = 'core.wsgi.application'
 
 
-# -------------------------------
+# =========================================================
 # TEMPLATES
-# -------------------------------
+# =========================================================
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -90,20 +92,21 @@ TEMPLATES = [
 ]
 
 
-# -------------------------------
-# DATABASE (FIXED - NO SSL FORCE)
-# -------------------------------
+# =========================================================
+# DATABASE (RENDER SAFE FIX)
+# =========================================================
 DATABASES = {
     'default': dj_database_url.config(
         default=os.environ.get("DATABASE_URL"),
-        conn_max_age=600
+        conn_max_age=600,
+        ssl_require=True
     )
 }
 
 
-# -------------------------------
+# =========================================================
 # PASSWORD VALIDATION
-# -------------------------------
+# =========================================================
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -112,18 +115,18 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# -------------------------------
+# =========================================================
 # INTERNATIONALIZATION
-# -------------------------------
+# =========================================================
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
 
-# -------------------------------
+# =========================================================
 # STATIC FILES
-# -------------------------------
+# =========================================================
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
@@ -131,43 +134,46 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
-# -------------------------------
+# =========================================================
 # MEDIA FILES
-# -------------------------------
+# =========================================================
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 
-# -------------------------------
-# EMAIL (PRODUCTION SAFE)
-# -------------------------------
+# =========================================================
+# EMAIL (SAFE FOR RENDER + OTP)
+# =========================================================
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
+# SAFE FALLBACK (prevents crash)
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
 
 
-# -------------------------------
-# SECURITY
-# -------------------------------
+# =========================================================
+# SECURITY SETTINGS
+# =========================================================
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-# -------------------------------
+
+# =========================================================
 # CSRF TRUSTED ORIGINS
-# -------------------------------
+# =========================================================
 CSRF_TRUSTED_ORIGINS = [
     "https://petit-seminaire-saint-jean-nkumba-e.onrender.com",
-    "http://127.0.0.1:8000",
     "http://localhost:8000",
+    "http://127.0.0.1:8000",
 ]
 
 
-# -------------------------------
+# =========================================================
 # DEFAULT AUTO FIELD
-# -------------------------------
+# =========================================================
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
