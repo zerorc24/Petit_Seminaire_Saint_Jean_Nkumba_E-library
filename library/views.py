@@ -103,28 +103,6 @@ def login_view(request):
 
 
 # =========================================================
-# 📧 SEND CODE PAGE
-# =========================================================
-def send_code_page(request):
-
-    user_id = request.session.get("pending_user_id")
-
-    if not user_id:
-        return redirect("login")
-
-    user = User.objects.filter(id=user_id).first()
-
-    if not user:
-        return redirect("login")
-
-    return render(
-        request,
-        "library/send_code.html",
-        {"email": user.email}
-    )
-
-
-# =========================================================
 # 📩 SEND VERIFICATION CODE
 # =========================================================
 def send_verification_code(request):
@@ -142,49 +120,34 @@ def send_verification_code(request):
     # Generate OTP
     code = str(random.randint(100000, 999999))
 
+    # Save OTP in session
     request.session["email_code"] = code
     request.session["code_time"] = time.time()
 
     print("OTP CODE:", code)
 
-    email_user = getattr(settings, "EMAIL_HOST_USER", None)
-    email_pass = getattr(settings, "EMAIL_HOST_PASSWORD", None)
-
-    # If email not configured → continue without crash
-    if not email_user or not email_pass:
-
-        print("EMAIL NOT CONFIGURED")
-
-        return render(
-            request,
-            "library/otp_display.html",
-            {"code": code}
-        )
-
     try:
 
-        send_mail(
-            subject="Your Login Verification Code",
-            message=f"Your OTP code is: {code}",
-            from_email=email_user,
-            recipient_list=[user.email],
-            fail_silently=True
-        )
+        # ONLY try email if credentials exist
+        if settings.EMAIL_HOST_USER and settings.EMAIL_HOST_PASSWORD:
 
-        print("EMAIL SENT SUCCESSFULLY")
+            send_mail(
+                subject="Login Verification Code",
+                message=f"Your OTP code is: {code}",
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=[user.email],
+                fail_silently=True
+            )
+
+            print("EMAIL SENT")
 
     except Exception as e:
 
         print("EMAIL ERROR:", e)
 
-        return render(
-            request,
-            "library/otp_display.html",
-            {"code": code}
-        )
-
+    # IMPORTANT:
+    # Never crash
     return redirect("verify_code")
-
 
 # =========================================================
 # 🔐 VERIFY CODE
