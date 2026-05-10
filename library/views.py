@@ -115,6 +115,7 @@ def send_verification_code(request):
     if not user:
         return redirect("login")
 
+    # Generate OTP
     code = str(random.randint(100000, 999999))
 
     request.session["email_code"] = code
@@ -122,23 +123,21 @@ def send_verification_code(request):
 
     print("OTP CODE:", code)
 
+    # 🚨 NEVER try email on Render unless configured properly
     email_host = getattr(settings, "EMAIL_HOST_USER", None)
     email_pass = getattr(settings, "EMAIL_HOST_PASSWORD", None)
 
-    # ============================
-    # SAFE MODE (IMPORTANT)
-    # ============================
+    # SAFE MODE: if email not fully configured → just show OTP page
     if not email_host or not email_pass:
-        return HttpResponse(f"""
-            <h2>EMAIL NOT CONFIGURED</h2>
-            <p><b>Your OTP:</b> {code}</p>
-            <p>Use this code to login.</p>
-        """)
+        return render(request, "library/otp_display.html", {
+            "code": code
+        })
 
+    # Try email ONLY if configured
     try:
         send_mail(
-            subject="Login Verification Code",
-            message=f"Your OTP code is: {code}",
+            subject="Your Login OTP",
+            message=f"Your OTP is: {code}",
             from_email=email_host,
             recipient_list=[user.email],
             fail_silently=True
@@ -146,54 +145,13 @@ def send_verification_code(request):
 
     except Exception as e:
         print("EMAIL ERROR:", e)
-        return HttpResponse(f"""
-            <h3>Email failed</h3>
-            <p><b>OTP:</b> {code}</p>
-        """)
+
+        # fallback instead of crashing
+        return render(request, "library/otp_display.html", {
+            "code": code
+        })
 
     return redirect("verify_code")
-
-
-# =========================================================
-# 🔐 VERIFY OTP
-# =========================================================
-def verify_code(request):
-
-    user_id = request.session.get("pending_user_id")
-    if not user_id:
-        return redirect("login")
-
-    if request.method == "GET":
-        return render(request, "library/verify_code.html")
-
-    entered_code = request.POST.get("code")
-    saved_code = request.session.get("email_code")
-
-    if not saved_code:
-        messages.error(request, "Session expired")
-        return redirect("login")
-
-    if time.time() - request.session.get("code_time", 0) > 300:
-        messages.error(request, "Code expired")
-        return redirect("login")
-
-    if entered_code == saved_code:
-
-        user = User.objects.filter(id=user_id).first()
-        if not user:
-            return redirect("login")
-
-        login(request, user)
-
-        request.session.pop("pending_user_id", None)
-        request.session.pop("email_code", None)
-        request.session.pop("code_time", None)
-
-        return redirect("admin_dashboard" if user.is_staff else "home")
-
-    messages.error(request, "Invalid code")
-    return redirect("verify_code")
-
 
 # =========================================================
 # 🚪 LOGOUT
