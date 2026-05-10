@@ -1,4 +1,3 @@
-import csv
 import random
 import time
 
@@ -51,13 +50,7 @@ def register(request):
         )
 
         user.is_active = True
-
-        if hasattr(user, "status"):
-            user.status = "pending"
-
-        if hasattr(user, "is_approved"):
-            user.is_approved = False
-
+        user.status = "pending" if hasattr(user, "status") else None
         user.save()
 
         messages.success(request, "Account created. Wait for admin approval.")
@@ -97,13 +90,12 @@ def login_view(request):
 # 📧 SEND CODE PAGE
 # =========================================================
 def send_code_page(request):
-    user_id = request.session.get("pending_user_id")
 
+    user_id = request.session.get("pending_user_id")
     if not user_id:
         return redirect("login")
 
     user = User.objects.filter(id=user_id).first()
-
     if not user:
         return redirect("login")
 
@@ -111,7 +103,7 @@ def send_code_page(request):
 
 
 # =========================================================
-# 📩 SEND OTP (100% SAFE - NEVER CRASH)
+# 📩 SEND OTP (100% SAFE)
 # =========================================================
 def send_verification_code(request):
 
@@ -123,7 +115,6 @@ def send_verification_code(request):
     if not user:
         return redirect("login")
 
-    # generate OTP
     code = str(random.randint(100000, 999999))
 
     request.session["email_code"] = code
@@ -131,28 +122,34 @@ def send_verification_code(request):
 
     print("OTP CODE:", code)
 
-    email_user = getattr(settings, "EMAIL_HOST_USER", None)
+    email_host = getattr(settings, "EMAIL_HOST_USER", None)
+    email_pass = getattr(settings, "EMAIL_HOST_PASSWORD", None)
 
-    # ❗ SAFE MODE: if email not configured → show OTP instead of crashing
-    if not email_user:
+    # ============================
+    # SAFE MODE (IMPORTANT)
+    # ============================
+    if not email_host or not email_pass:
         return HttpResponse(f"""
             <h2>EMAIL NOT CONFIGURED</h2>
             <p><b>Your OTP:</b> {code}</p>
-            <p>Use this code to continue login.</p>
+            <p>Use this code to login.</p>
         """)
 
     try:
         send_mail(
             subject="Login Verification Code",
             message=f"Your OTP code is: {code}",
-            from_email=email_user,
+            from_email=email_host,
             recipient_list=[user.email],
-            fail_silently=True  # prevents 500 crash
+            fail_silently=True
         )
 
     except Exception as e:
         print("EMAIL ERROR:", e)
-        return HttpResponse(f"<h3>Email failed</h3><p>OTP: {code}</p>")
+        return HttpResponse(f"""
+            <h3>Email failed</h3>
+            <p><b>OTP:</b> {code}</p>
+        """)
 
     return redirect("verify_code")
 
@@ -203,7 +200,6 @@ def verify_code(request):
 # =========================================================
 def logout_view(request):
     logout(request)
-    request.session.flush()
     return redirect("home")
 
 
@@ -280,43 +276,30 @@ def admin_dashboard(request):
 
 
 # =========================================================
-# 👤 APPROVE USER
+# 👤 APPROVE / REJECT
 # =========================================================
 @staff_member_required
 def approve_user(request, user_id):
-
     user = User.objects.filter(id=user_id).first()
     if user:
-        if hasattr(user, "status"):
-            user.status = "approved"
-        if hasattr(user, "is_approved"):
-            user.is_approved = True
+        user.status = "approved"
         user.is_active = True
         user.save()
-
     return redirect("admin_dashboard")
 
 
-# =========================================================
-# ❌ REJECT USER
-# =========================================================
 @staff_member_required
 def reject_user(request, user_id):
-
     user = User.objects.filter(id=user_id).first()
     if user:
-        if hasattr(user, "status"):
-            user.status = "rejected"
-        if hasattr(user, "is_approved"):
-            user.is_approved = False
+        user.status = "rejected"
         user.is_active = False
         user.save()
-
     return redirect("admin_dashboard")
 
 
 # =========================================================
-# 📖 READ BOOK
+# 📖 BOOK
 # =========================================================
 def read_book(request, pk):
     if not request.user.is_authenticated:
