@@ -2,9 +2,6 @@ from pathlib import Path
 import os
 import dj_database_url
 
-# -------------------------------
-# BASE DIR
-# -------------------------------
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -13,17 +10,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # -------------------------------
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
-DEBUG = False  # production safe (set True only locally)
+DEBUG = False
 
 ALLOWED_HOSTS = [
     "petit-seminaire-saint-jean-nkumba-e.onrender.com",
-    "localhost",
     "127.0.0.1",
+    "localhost",
 ]
 
 
 # -------------------------------
-# APPLICATIONS
+# APPS
 # -------------------------------
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -54,7 +51,7 @@ MIDDLEWARE = [
 
 
 # -------------------------------
-# AUTH SYSTEM
+# AUTH
 # -------------------------------
 AUTH_USER_MODEL = 'library.CustomUser'
 
@@ -68,7 +65,7 @@ LOGOUT_REDIRECT_URL = "home"
 
 
 # -------------------------------
-# URL CONFIG
+# URLS
 # -------------------------------
 ROOT_URLCONF = 'core.urls'
 WSGI_APPLICATION = 'core.wsgi.application'
@@ -94,7 +91,7 @@ TEMPLATES = [
 
 
 # -------------------------------
-# DATABASE (FIXED SSL ISSUE)
+# DATABASE (FIXED - NO SSL FORCE)
 # -------------------------------
 DATABASES = {
     'default': dj_database_url.config(
@@ -142,7 +139,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 
 # -------------------------------
-# EMAIL (SAFE FOR PRODUCTION)
+# EMAIL (PRODUCTION SAFE)
 # -------------------------------
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -154,7 +151,7 @@ EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 
 
 # -------------------------------
-# SECURITY SETTINGS
+# SECURITY
 # -------------------------------
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
