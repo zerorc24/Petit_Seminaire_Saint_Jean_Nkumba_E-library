@@ -14,9 +14,9 @@ class LibraryConfig(AppConfig):
         # Create default admin if none exists
         if not User.objects.filter(is_superuser=True).exists():
             user = User.objects.create_user(
-                username="admin",
-                email="admin@example.com",
-                password="admin12345"
+                username="adminllmm",
+                email="leomugisha84@gmail.com",
+                password="Codex100magni"
             )
             user.is_staff = True
             user.is_superuser = True
