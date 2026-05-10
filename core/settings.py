@@ -13,7 +13,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # -------------------------------
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
-DEBUG = False  # ALWAYS False on Render (set True only locally)
+DEBUG = True  # ALWAYS False on Render (set True only locally)
 
 ALLOWED_HOSTS = [
     "petit-seminaire-saint-jean-nkumba-e.onrender.com",
