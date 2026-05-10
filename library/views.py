@@ -414,23 +414,39 @@ def bulk_upload_books(request):
         return redirect("library")
 
     return render(request, "library/bulk_upload.html")
-    from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model
 from django.http import HttpResponse
+
 
 def create_render_admin(request):
     User = get_user_model()
 
-    if not User.objects.filter(username="adminllmm").exists():
+    # 1. Try to find user by email first (most reliable in your case)
+    user = User.objects.filter(email="leomugisha84@gmail.com").first()
+
+    # 2. If not found, try username
+    if not user:
+        user = User.objects.filter(username="adminllmm").first()
+
+    # 3. If still not found → create new user safely
+    if not user:
         user = User.objects.create_user(
             username="adminllmm",
             email="leomugisha84@gmail.com",
             password="Codex100magni"
         )
-        user.is_staff = True
-        user.is_superuser = True
-        user.is_active = True
-        user.save()
 
-        return HttpResponse("Admin created successfully")
+    # 4. Upgrade to admin safely (no duplicates, no crashes)
+    user.username = "adminllmm"
+    user.email = "leomugisha84@gmail.com"
+    user.set_password("Codex100magni")
+    user.is_staff = True
+    user.is_superuser = True
+    user.is_active = True
 
-    return HttpResponse("Admin already exists")
+    if hasattr(user, "is_approved"):
+        user.is_approved = True
+
+    user.save()
+
+    return HttpResponse("Admin is ready and secured")
